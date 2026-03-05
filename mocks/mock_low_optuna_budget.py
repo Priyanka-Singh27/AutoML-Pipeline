@@ -1,10 +1,8 @@
 from .mock_generator import make_classification_mock
 
-# DataFrame is balanced — Person 1 has already applied SMOTE.
-# The audit object is what matters here: it tells our code that severe imbalance
-# WAS found and SMOTE WAS applied, which triggers:
-#   1. scale_pos_weight to be added to XGBoost/LightGBM search space in tuner.py
-#   2. SMOTE limitation warning to be generated in evaluator.py
+# Normal dataset — the point of this mock is the time_budget is set to
+# 10 seconds in the test runner, forcing very few Optuna trials (<20).
+# This triggers the limitation: "Only N trials completed. Increase --time-budget."
 mock_df = make_classification_mock(n_samples=5000, weights=[0.5, 0.5])
 
 mock_audit = {
@@ -16,7 +14,7 @@ mock_audit = {
     'target_column': 'target',
     'target_dtype': 'int64',
     'target_unique_values': 2,
-    'target_distribution': {0: 0.5, 1: 0.5},  # balanced AFTER SMOTE
+    'target_distribution': {0: 0.5, 1: 0.5},
     'target_valid': True,
     'target_min_class_size': 2500,
 
@@ -35,12 +33,10 @@ mock_audit = {
     'outlier_columns': {},
     'quasi_constant': [],
 
-    # These audit fields are what your code reads — original pre-SMOTE state
-    'imbalance_detected': True,
-    'imbalance_ratio': 0.05,           # original minority class was only 5%
-    'imbalance_severity': 'severe',
-    'smote_applied': True,             # Person 1 confirmed SMOTE was applied
-    'smote_recommended': True,
+    'imbalance_detected': False,
+    'imbalance_ratio': None,
+    'imbalance_severity': None,
+    'smote_recommended': False,
 
     'sampling_recommended': False,
     'sampling_fraction': None,
@@ -60,3 +56,6 @@ mock_detection = {
         'unique_values': {'value': 2, 'vote': 'classification', 'weight': 2},
     }
 }
+
+# Used by test_all_mocks.py to set a very short Optuna time budget for this mock only
+TIME_BUDGET_OVERRIDE = 10
