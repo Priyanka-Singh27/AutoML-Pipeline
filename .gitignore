@@ -1,0 +1,88 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+
+# ── Virtual Environments ──────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+.env
+
+# ── Distribution / Build ──────────────────────────────────────────────────────
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+
+# ── ML Outputs ────────────────────────────────────────────────────────────────
+outputs/
+*.joblib
+*.pkl
+*.pickle
+*.h5
+*.pt
+*.pth
+
+# ── Optuna ────────────────────────────────────────────────────────────────────
+*.db                    # optuna sqlite study storage
+optuna_studies/
+
+# ── Plots & Reports ───────────────────────────────────────────────────────────
+*.pdf
+plots/
+figures/
+*.png
+*.jpg
+*.svg
+
+# ── Jupyter Notebooks ─────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
+
+# ── Data Files (never commit raw data) ───────────────────────────────────────
+*.csv
+*.tsv
+*.xlsx
+*.xls
+*.parquet
+*.feather
+data/
+
+# ── Testing & Coverage ────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+
+# ── MyPy / Linting ────────────────────────────────────────────────────────────
+.mypy_cache/
+.ruff_cache/
+.pytype/
+
+# ── IDE & Editor ──────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Misc ──────────────────────────────────────────────────────────────────────
+.env.local
+*.bak
+*.tmp
