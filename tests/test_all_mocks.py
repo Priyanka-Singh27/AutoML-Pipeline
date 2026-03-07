@@ -107,17 +107,17 @@ def main():
             results.append((name, 'FAIL', str(e)))
 
     # ── Print results ─────────────────────────────────────────────────────────
-    print('\n' + '━' * 62)
+    print('\n' + '=' * 62)
     print('  MOCK TEST RESULTS')
-    print('━' * 62)
+    print('=' * 62)
 
     for name, status, error in results:
-        icon = '✔' if status == 'PASS' else '✘'
+        icon = '[+]' if status == 'PASS' else '[-]'
         print(f'  {icon}  {name:<38} {status}')
         if error is not None:
             print(f'       Error: {error}')
 
-    print('━' * 62)
+    print('=' * 62)
     passed = sum(1 for _, s, _ in results if s == 'PASS')
     print(f'  {passed}/{len(results)} passed\n')
 

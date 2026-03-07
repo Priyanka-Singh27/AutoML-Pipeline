@@ -1,0 +1,74 @@
+﻿
+[FEATURE SELECTION]
+
+[FEATURE SELECTION]
+
+[FEATURE SELECTION]
+
+[FEATURE SELECTION]
+
+[FEATURE SELECTION]
+
+[FEATURE SELECTION]
+
+[FEATURE SELECTION]
+
+[FEATURE SELECTION]
+
+[FEATURE SELECTION]
+
+[FEATURE SELECTION]
+
+[FEATURE SELECTION]
+
+[FEATURE SELECTION]
+
+[FEATURE SELECTION]
+
+[FEATURE SELECTION]
+
+[FEATURE SELECTION]
+
+[FEATURE SELECTION]
+
+[FEATURE SELECTION]
+python : Traceback (most 
+recent call last):
+At line:1 char:1
++ python 
+tests/test_all_mocks.py > 
+test_results.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: (Traceba  
+  ck (most recent call las   
+ t)::String) [], RemoteEx    
+ception
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+  File "D:\Automated ML pipel
+ine\AutoML\tests\test_all_moc
+ks.py", line 125, in <module>
+    main()
+    ~~~~^^
+  File "D:\Automated ML pipel
+ine\AutoML\tests\test_all_moc
+ks.py", line 110, in main
+    print('\n' + '\u2501' * 
+62)
+    ~~~~~^^^^^^^^^^^^^^^^^
+  File "D:\anaconda3\Lib\enco
+dings\cp1252.py", line 19, 
+in encode
+    return codecs.charmap_enc
+ode(input,self.errors,encodin
+g_table)[0]
+           ~~~~~~~~~~~~~~~~~~
+~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^
+UnicodeEncodeError: 
+'charmap' codec can't encode 
+characters in position 2-63: 
+character maps to <undefined>
