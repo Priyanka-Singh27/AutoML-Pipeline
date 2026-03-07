@@ -73,7 +73,7 @@ def main():
 
         try:
             # 0. Detector
-            detection = run_detector(mock.mock_audit)
+            detection = run_detector(mock.mock_audit, df=mock.mock_df, _auto_input='1')
 
             # Clustering has no target column
             if detection['problem_type'] == 'clustering':
