@@ -25,6 +25,7 @@ from mocks import (
 )
 
 try:
+    from core.detector import run_detector
     from core.feature_selector import run_feature_selection
     from core.tuner import run_optuna_study
     from core.evaluator import run_evaluation
@@ -71,8 +72,11 @@ def main():
         time_budget = getattr(mock, 'TIME_BUDGET_OVERRIDE', DEFAULT_TIME_BUDGET)
 
         try:
+            # 0. Detector
+            detection = run_detector(mock.mock_audit)
+
             # Clustering has no target column
-            if mock.mock_detection['problem_type'] == 'clustering':
+            if detection['problem_type'] == 'clustering':
                 X = mock.mock_df
                 y = None
             else:
@@ -84,12 +88,12 @@ def main():
 
             # 2. Optuna Tuning
             study, model = run_optuna_study(
-                X_sel, y, mock.mock_detection, mock.mock_audit, time_budget=time_budget
+                X_sel, y, detection, mock.mock_audit, time_budget=time_budget
             )
 
             # 3. Evaluation
             evaluation = run_evaluation(
-                model, X_sel, y, mock.mock_detection, mock.mock_audit, study
+                model, X_sel, y, detection, mock.mock_audit, study
             )
 
             # Edge case: all features dropped should raise, not pass silently
