@@ -84,16 +84,19 @@ def main():
                 y = mock.mock_df['target']
 
             # 1. Feature Selection
-            X_sel, dropped, remaining = run_feature_selection(X, y, mock.mock_audit)
+            fs_results = run_feature_selection(X, y, mock.mock_audit, detection)
+            
+            X_train = fs_results['X_train']
+            y_train = fs_results['y_train']
 
             # 2. Optuna Tuning
             study, model = run_optuna_study(
-                X_sel, y, detection, mock.mock_audit, time_budget=time_budget
+                X_train, y_train, detection, mock.mock_audit, time_budget=time_budget
             )
 
             # 3. Evaluation
             evaluation = run_evaluation(
-                model, X_sel, y, detection, mock.mock_audit, study
+                model, X_train, y_train, detection, mock.mock_audit, study
             )
 
             # Edge case: all features dropped should raise, not pass silently
