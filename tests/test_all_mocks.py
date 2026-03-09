@@ -96,7 +96,7 @@ def main():
 
             # 3. Evaluation
             evaluation = run_evaluation(
-                model, X_train, y_train, detection, mock.mock_audit, study
+                model, X_train, y_train, detection, mock.mock_audit, study, run_shap=False
             )
 
             # Edge case: all features dropped should raise, not pass silently
