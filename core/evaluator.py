@@ -201,6 +201,7 @@ def _evaluate_clustering(model, X, detection, audit, evaluation):
     except Exception as e:
         evaluation['cluster_visualization'] = None
         
+    # Replace non-ascii chars that break Windows console logs
     narrate(f"  -> Clusters found    : {n_clusters}")
     narrate(f"  -> Silhouette score  : {evaluation['silhouette_score']}")
 
@@ -241,6 +242,12 @@ def _generate_shap(model, X_tr, X_te, detection, evaluation, model_name):
             else:
                 # Multiclass - Average absolute impact across all classes to find globally important features
                 mean_abs = np.mean([np.abs(sv).mean(axis=0) for sv in shap_vals], axis=0)
+        elif len(np.shape(shap_vals)) == 3:
+            n_classes = np.shape(shap_vals)[2]
+            if problem_type == 'classification' and n_classes == 2:
+                mean_abs = np.abs(shap_vals[:, :, 1]).mean(axis=0)
+            else:
+                mean_abs = np.abs(shap_vals).mean(axis=(0, 2))
         else:
             # Standard Regression or collapsed binary output
             mean_abs = np.abs(shap_vals).mean(axis=0)
@@ -292,13 +299,31 @@ def run_evaluation(model, X, y, detection, audit, study, preprocessor_pipeline=N
     """
     narrate(f"\n[EVALUATION]")
     problem_type = detection['problem_type']
-    model_name = getattr(study, 'model_name', study.best_params.get('model', 'unknown')) if hasattr(study, 'best_params') else getattr(study, 'model_name', 'Custom')
+    
+    # Safely extract study metadata regardless of mock/tuple structures
+    best_params = {}
+    if hasattr(study, 'best_params'):
+        best_params = study.best_params
+    elif isinstance(study, dict) and 'best_params' in study:
+        best_params = study['best_params']
+        
+    model_name = 'unknown'
+    if hasattr(study, 'model_name'):
+        model_name = study.model_name
+    elif best_params and 'model' in best_params:
+        model_name = best_params['model']
+    elif hasattr(study, 'best_trial') and hasattr(study.best_trial, 'params'):
+        model_name = study.best_trial.params.get('model', 'unknown')
+        
+    n_trials = 0
+    if hasattr(study, 'trials'):
+        n_trials = len(study.trials)
 
     evaluation = {
         'best_model': model,
         'best_model_name': model_name,
-        'best_params': study.best_params if hasattr(study, 'best_params') else {},
-        'n_trials': len(study.trials) if hasattr(study, 'trials') else 0,
+        'best_params': best_params,
+        'n_trials': n_trials,
         
         'features_original': audit.get('shape', (0, 0))[1],
         'features_remaining': X.shape[1],

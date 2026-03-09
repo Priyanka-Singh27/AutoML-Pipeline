@@ -302,17 +302,17 @@ def run_detector(audit, df=None, force_type=None, _auto_input=None):
         narrate(f"\n  [!] Ambiguous Target Detected: '{target}'")
         narrate(f"  -> Evidence for Classification:")
         if n_unique <= 20:
-             narrate(f"     [✔] Low cardinality ({n_unique} unique values)")
+             narrate(f"     [+] Low cardinality ({n_unique} unique values)")
         if dist_analysis['gap_variance'] < 2.0:
-             narrate(f"     [✔] Regular intervals between values (gap var: {dist_analysis['gap_variance']:.2f})")
+             narrate(f"     [+] Regular intervals between values (gap var: {dist_analysis['gap_variance']:.2f})")
         if dist_analysis['entropy'] < 1.5:
-             narrate(f"     [✔] Concentrated value distribution (entropy: {dist_analysis['entropy']:.2f})")
+             narrate(f"     [+] Concentrated value distribution (entropy: {dist_analysis['entropy']:.2f})")
              
         narrate(f"  -> Evidence for Regression:")
         if reg_score > cls_score:
-             narrate(f"     [✔] Regression heuristic score is higher ({reg_score} vs {cls_score})")
+             narrate(f"     [+] Regression heuristic score is higher ({reg_score} vs {cls_score})")
         if dist_analysis['entropy'] > 2.0:
-             narrate(f"     [✔] Wide spread of target values (entropy: {dist_analysis['entropy']:.2f})")
+             narrate(f"     [+] Wide spread of target values (entropy: {dist_analysis['entropy']:.2f})")
 
         narrate(f"\n  -> Is '{target}' a categorical label or a numeric metric?")
         narrate(f"     (1) Classification - predict which category/label")

@@ -1,0 +1,23 @@
+FAILED: ValueError
+Message: Feature selection failed: 100% of features were dropped by Hard Filters.
+Traceback (most recent call last):
+  File "D:\Automated ML pipeline\AutoML\core\feature_selector.py", line 152, in _apply_variance_filter
+    vf.fit(X_train)
+    ~~~~~~^^^^^^^^^
+  File "C:\Users\Priyanka\AppData\Roaming\Python\Python313\site-packages\sklearn\base.py", line 1389, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "C:\Users\Priyanka\AppData\Roaming\Python\Python313\site-packages\sklearn\feature_selection\_variance_threshold.py", line 128, in fit
+    raise ValueError(msg.format(self.threshold))
+ValueError: No feature in X meets the variance threshold 0.01000
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Automated ML pipeline\AutoML\trace_extractor.py", line 28, in main
+    fs_results = run_feature_selection(X, y, mock.mock_audit, detection)
+  File "D:\Automated ML pipeline\AutoML\core\feature_selector.py", line 283, in run_feature_selection
+    X_train, X_test, vf = _apply_variance_filter(X_train, X_test, audit, dropped_dict)
+                          ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Automated ML pipeline\AutoML\core\feature_selector.py", line 164, in _apply_variance_filter
+    raise ValueError("Feature selection failed: 100% of features were dropped by Hard Filters.")
+ValueError: Feature selection failed: 100% of features were dropped by Hard Filters.

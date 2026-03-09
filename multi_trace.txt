@@ -1,0 +1,63 @@
+--- Running mocks.mock_multiclass ---
+
+[DETECTION]
+  -> Signal 3 - Gap variance  : Small/regular gaps (0.00) -> Classification (+1.0)
+  -> Signal 4 - Target Dtype  : int64 (Low cardinality: 4) -> Classification (+2.0)
+  -> Signal 6 - Feature types : Majority regression -> Regression (+0.5)
+  -> Total Classification score : 3.0
+  -> Total Regression score     : 0.5
+  -> Problem type finalized as: Classification (high confidence)
+
+
+[FEATURE SELECTION]
+  -> Level 2 | Calculating Consensus Importance (3 seeds)
+FAILED: ValueError - The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+Traceback (most recent call last):
+  File "D:\Automated ML pipeline\AutoML\trace_extractor.py", line 27, in run_debug
+    fs_results = run_feature_selection(X, y, mock.mock_audit, detection)
+  File "D:\Automated ML pipeline\AutoML\core\feature_selector.py", line 304, in run_feature_selection
+    wf.fit(X_train)
+    ~~~~~~^^^^^^^^^
+  File "D:\Automated ML pipeline\AutoML\core\feature_selector.py", line 78, in fit
+    max_imp = max([v['mean'] for v in self.consensus_importance.values()]) if self.consensus_importance else 0.0
+              ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+--- Running mocks.mock_many_classes ---
+
+[DETECTION]
+  -> Signal 1 - Distribution  : High entropy (3.00) -> Regression (+2.0)
+  -> Signal 3 - Gap variance  : Small/regular gaps (0.00) -> Classification (+1.0)
+  -> Signal 4 - Target Dtype  : int64 (20 unique) -> Ambiguous (+0.0)
+  -> Signal 6 - Feature types : Majority regression -> Regression (+0.5)
+  -> Total Classification score : 1.0
+  -> Total Regression score     : 2.5
+
+  [!] Ambiguous Target Detected: 'target'
+  -> Evidence for Classification:
+     [+] Low cardinality (20 unique values)
+     [+] Regular intervals between values (gap var: 0.00)
+  -> Evidence for Regression:
+     [+] Regression heuristic score is higher (2.5 vs 1.0)
+     [+] Wide spread of target values (entropy: 3.00)
+
+  -> Is 'target' a categorical label or a numeric metric?
+     (1) Classification - predict which category/label
+     (2) Regression     - predict the exact numeric scale
+  -> Your choice (auto): 1
+  -> Warning: many_class subtype detected (20 classes). Will use LightGBM for speed.
+  -> Problem type finalized as: Classification (high confidence)
+
+
+[FEATURE SELECTION]
+  -> Level 2 | Calculating Consensus Importance (3 seeds)
+FAILED: ValueError - The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+Traceback (most recent call last):
+  File "D:\Automated ML pipeline\AutoML\trace_extractor.py", line 27, in run_debug
+    fs_results = run_feature_selection(X, y, mock.mock_audit, detection)
+  File "D:\Automated ML pipeline\AutoML\core\feature_selector.py", line 304, in run_feature_selection
+    wf.fit(X_train)
+    ~~~~~~^^^^^^^^^
+  File "D:\Automated ML pipeline\AutoML\core\feature_selector.py", line 78, in fit
+    max_imp = max([v['mean'] for v in self.consensus_importance.values()]) if self.consensus_importance else 0.0
+              ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()

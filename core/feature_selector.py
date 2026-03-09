@@ -36,8 +36,12 @@ class CorrelationFilter(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
         drop_set = set()
         for pair in self.high_correlations:
-            f1 = pair.get('feature1')
-            f2 = pair.get('feature2')
+            if isinstance(pair, tuple):
+                f1, f2 = pair[0], pair[1]
+            else:
+                f1 = pair.get('feature1')
+                f2 = pair.get('feature2')
+                
             if f1 not in X.columns or f2 not in X.columns:
                 continue
             
@@ -154,9 +158,11 @@ def _apply_variance_filter(X_train, X_test, audit, dropped_dict):
         X_train = vf.transform(X_train)
         if X_test is not None:
             X_test = vf.transform(X_test)
-    except ValueError:
+    except ValueError as e:
         # Happens if ALL features are zero variance
-        pass
+        if "variance" in str(e).lower() or "feature" in str(e).lower():
+            raise ValueError("Feature selection failed: 100% of features were dropped by Hard Filters.")
+        raise e
 
     return X_train, X_test, vf
 
@@ -194,6 +200,9 @@ def _calculate_consensus_importance(X_train, y_train, detection, base_random_sta
                 seed_imp = np.zeros(X_train.shape[1])
                 for cl_vals in shap_values:
                     seed_imp += np.abs(cl_vals).mean(axis=0)
+            elif len(np.shape(shap_values)) == 3:
+                # 3D array (n_samples, n_features, n_classes)
+                seed_imp = np.abs(shap_values).mean(axis=(0, 2))
             else:
                 seed_imp = np.abs(shap_values).mean(axis=0)
                 
