@@ -5,6 +5,10 @@ Implements Leakage removal, VarianceThreshold, Consensus Importance (Multi-seed 
 and Correlation resolution.
 """
 
+from core.narrator import narrate
+from core.headers import Section
+
+
 import numpy as np
 import pandas as pd
 import shap
@@ -105,7 +109,7 @@ def _split_data(X, y, problem_type, test_size, random_state):
         return X_tr, X_te, y_tr, y_te
     except ValueError as e:
         # Fallback if classes are too small to stratify
-        print(f"  [!] Stratified split failed ({str(e)}). Falling back to random split.")
+        narrate(f"  [!] Stratified split failed ({str(e)}). Falling back to random split.")
         X_tr, X_te, y_tr, y_te = train_test_split(
             X, y, test_size=test_size, stratify=None, random_state=random_state
         )
@@ -118,7 +122,7 @@ def _remove_leakage(X_train, X_test, audit, dropped_dict):
     leakage_cols = [c for c in candidates if c in X_train.columns]
     
     if leakage_cols:
-        print(f"  -> Level 0 | Dropping {len(leakage_cols)} leakage candidates: {leakage_cols}")
+        narrate(f"  -> Level 0 | Dropping {len(leakage_cols)} leakage candidates: {leakage_cols}")
         X_train = X_train.drop(columns=leakage_cols)
         if X_test is not None:
             X_test = X_test.drop(columns=leakage_cols)
@@ -132,7 +136,7 @@ def _apply_variance_filter(X_train, X_test, audit, dropped_dict):
     # Explicit quasi-constant from audit
     quasi_cols = [c for c in audit.get('quasi_constant', []) if c in X_train.columns]
     if quasi_cols:
-        print(f"  -> Level 1 | Dropping {len(quasi_cols)} quasi-constant columns from audit: {quasi_cols}")
+        narrate(f"  -> Level 1 | Dropping {len(quasi_cols)} quasi-constant columns from audit: {quasi_cols}")
         X_train = X_train.drop(columns=quasi_cols)
         if X_test is not None:
             X_test = X_test.drop(columns=quasi_cols)
@@ -144,7 +148,7 @@ def _apply_variance_filter(X_train, X_test, audit, dropped_dict):
         vf.fit(X_train)
         dropped_vars = [c for c in X_train.columns if c not in vf.get_feature_names_out()]
         if dropped_vars:
-            print(f"  -> Level 1 | Dropping {len(dropped_vars)} low variance columns: {dropped_vars}")
+            narrate(f"  -> Level 1 | Dropping {len(dropped_vars)} low variance columns: {dropped_vars}")
             dropped_dict['variance'] = dropped_vars
             
         X_train = vf.transform(X_train)
@@ -165,7 +169,7 @@ def _calculate_consensus_importance(X_train, y_train, detection, base_random_sta
     if problem_type == 'clustering' or X_train.shape[1] <= 1:
         return {}
         
-    print(f"  -> Level 2 | Calculating Consensus Importance (3 seeds)")
+    narrate(f"  -> Level 2 | Calculating Consensus Importance (3 seeds)")
     importances = []
     seeds = [base_random_state, base_random_state + 42, base_random_state + 123]
     
@@ -195,7 +199,7 @@ def _calculate_consensus_importance(X_train, y_train, detection, base_random_sta
                 
             importances.append(seed_imp)
         except Exception as e:
-            print(f"  [!] Failed to generate SHAP importance for seed {seed}: {type(e).__name__}")
+            narrate(f"  [!] Failed to generate SHAP importance for seed {seed}: {type(e).__name__}")
             continue
 
     if not importances:
@@ -219,7 +223,7 @@ def _post_selection_validation(X_train_full, X_train_sel, y_train, detection, ra
         
     n_classes = detection.get('num_classes', 2)
     
-    print(f"  -> Level 5 | Post-Selection Validation (3-Fold CV)")
+    narrate(f"  -> Level 5 | Post-Selection Validation (3-Fold CV)")
     if problem == 'classification':
         obj = 'binary' if n_classes == 2 else 'multiclass'
         probe = LGBMClassifier(n_estimators=30, random_state=random_state, verbosity=-1, objective=obj, 
@@ -242,24 +246,24 @@ def _post_selection_validation(X_train_full, X_train_sel, y_train, detection, ra
             score_sel = -score_sel
             
             if score_sel > score_full * 1.05:  # 5% worse error
-                print(f"  [!] Warning: Selection increased RMSE from {score_full:.4f} to {score_sel:.4f}.")
+                narrate(f"  [!] Warning: Selection increased RMSE from {score_full:.4f} to {score_sel:.4f}.")
             else:
-                print(f"  -> Validation: RMSE remained stable ({score_full:.4f} -> {score_sel:.4f})")
+                narrate(f"  -> Validation: RMSE remained stable ({score_full:.4f} -> {score_sel:.4f})")
         else:
             if score_sel < score_full - 0.02: # 2% worse F1
-                print(f"  [!] Warning: Selection reduced F1 from {score_full:.4f} to {score_sel:.4f}.")
+                narrate(f"  [!] Warning: Selection reduced F1 from {score_full:.4f} to {score_sel:.4f}.")
             else:
-                print(f"  -> Validation: F1 remained stable ({score_full:.4f} -> {score_sel:.4f})")
+                narrate(f"  -> Validation: F1 remained stable ({score_full:.4f} -> {score_sel:.4f})")
                 
     except Exception as e:
-        print(f"  [!] Could not generate validation scores: {type(e).__name__}")
+        narrate(f"  [!] Could not generate validation scores: {type(e).__name__}")
 
 
 def run_feature_selection(X, y, audit, detection, test_size=0.2, random_state=42):
     """
     Executes the robust 5-Level feature selection pipeline.
     """
-    print("\n[FEATURE SELECTION]")
+    narrate("\n[FEATURE SELECTION]")
     
     n_original = X.shape[1]
     dropped_dict = {'leakage': [], 'quasi_constant': [], 'variance': [], 'correlation': [], 'shap': []}
@@ -283,7 +287,7 @@ def run_feature_selection(X, y, audit, detection, test_size=0.2, random_state=42
     cf = CorrelationFilter(audit.get('high_correlations', []), consensus_imp)
     cf.fit(X_train)
     if cf.to_drop_:
-        print(f"  -> Level 3 | Dropping {len(cf.to_drop_)} weaker correlated columns: {cf.to_drop_}")
+        narrate(f"  -> Level 3 | Dropping {len(cf.to_drop_)} weaker correlated columns: {cf.to_drop_}")
         dropped_dict['correlation'] = cf.to_drop_
         X_train = cf.transform(X_train)
         if X_test is not None:
@@ -293,7 +297,7 @@ def run_feature_selection(X, y, audit, detection, test_size=0.2, random_state=42
     wf = WeakFeatureFilter(consensus_imp, relative_threshold=0.01)
     wf.fit(X_train)
     if wf.to_drop_:
-        print(f"  -> Level 4 | Dropping {len(wf.to_drop_)} weak features (SHAP < 1% of top): {wf.to_drop_}")
+        narrate(f"  -> Level 4 | Dropping {len(wf.to_drop_)} weak features (SHAP < 1% of top): {wf.to_drop_}")
         dropped_dict['shap'] = wf.to_drop_
         X_train = wf.transform(X_train)
         if X_test is not None:
@@ -312,7 +316,7 @@ def run_feature_selection(X, y, audit, detection, test_size=0.2, random_state=42
     if n_remaining == 0:
         raise ValueError("Feature selection failed: 100% of features were dropped across all filters.")
         
-    print(f"  -> Features remaining: {n_remaining} / {n_original}")
+    narrate(f"  -> Features remaining: {n_remaining} / {n_original}")
     
     # Level 5: Post Selection Validation
     _post_selection_validation(X_train_full_backup, X_train, y_train, detection, random_state)

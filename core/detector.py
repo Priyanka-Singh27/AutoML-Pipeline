@@ -2,6 +2,10 @@
 detector.py
 Infers problem type (classification, regression, clustering) from audit data and statistical tests on the target distribution.
 """
+
+from core.narrator import narrate
+from core.headers import Section
+
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -149,7 +153,7 @@ def sanity_check(detection, audit):
         )
 
     for w in warnings:
-        print(f"  [!] Sanity Check Warning: {w}")
+        narrate(f"  [!] Sanity Check Warning: {w}")
 
     return warnings
 
@@ -159,7 +163,7 @@ def run_detector(audit, df=None, force_type=None, _auto_input=None):
     Analyzes the audit object and statistically tests the target distribution
     to determine the ML problem type (Classification, Regression, Clustering).
     """
-    print("\n[DETECTION]")
+    narrate("\n[DETECTION]")
 
     target = audit.get('target_column')
     target_dtype = audit.get('target_dtype')
@@ -187,7 +191,7 @@ def run_detector(audit, df=None, force_type=None, _auto_input=None):
         detection['problem_type'] = force_type
         detection['detection_method'] = 'user_flag'
         detection['confidence'] = 'high'
-        print(f"  -> Problem type inferred as: {force_type.capitalize()} (User override)")
+        narrate(f"  -> Problem type inferred as: {force_type.capitalize()} (User override)")
         sanity_check(detection, audit)
         return detection
 
@@ -196,7 +200,7 @@ def run_detector(audit, df=None, force_type=None, _auto_input=None):
         detection['problem_type'] = 'clustering'
         detection['confidence'] = 'high'
         detection['signals']['target_column'] = {'value': None, 'vote': 'clustering', 'weight': 5.0}
-        print("  -> Problem type inferred as: Clustering (No target column found)")
+        narrate("  -> Problem type inferred as: Clustering (No target column found)")
         return detection
 
     # 3. Analyze Statistical Distribution
@@ -215,17 +219,17 @@ def run_detector(audit, df=None, force_type=None, _auto_input=None):
         if dist_analysis['entropy'] < 1.0:
             detection['signals']['entropy'] = {'value': dist_analysis['entropy'], 'vote': 'classification', 'weight': 2.0}
             cls_score += 2.0
-            print(f"  -> Signal 1 - Distribution  : Low entropy ({dist_analysis['entropy']:.2f}) -> Classification (+2.0)")
+            narrate(f"  -> Signal 1 - Distribution  : Low entropy ({dist_analysis['entropy']:.2f}) -> Classification (+2.0)")
         elif dist_analysis['entropy'] > 2.5:
             detection['signals']['entropy'] = {'value': dist_analysis['entropy'], 'vote': 'regression', 'weight': 2.0}
             reg_score += 2.0
-            print(f"  -> Signal 1 - Distribution  : High entropy ({dist_analysis['entropy']:.2f}) -> Regression (+2.0)")
+            narrate(f"  -> Signal 1 - Distribution  : High entropy ({dist_analysis['entropy']:.2f}) -> Regression (+2.0)")
 
     # Normality: Normally distributed target almost guarantees regression
     if dist_analysis['is_normal']:
         detection['signals']['normality'] = {'value': dist_analysis['p_normal'], 'vote': 'regression', 'weight': 2.5}
         reg_score += 2.5
-        print(f"  -> Signal 2 - Normality     : Normally distributed (p={dist_analysis['p_normal']:.3f}) -> Regression (+2.5)")
+        narrate(f"  -> Signal 2 - Normality     : Normally distributed (p={dist_analysis['p_normal']:.3f}) -> Regression (+2.5)")
 
     # Gap Variance: Regular spacing = classification ordinal. Irregular spacing = continuous regression.
     # We only apply this safely if there are some gaps to measure.
@@ -233,36 +237,36 @@ def run_detector(audit, df=None, force_type=None, _auto_input=None):
         if dist_analysis['gap_variance'] < 0.1:
             detection['signals']['gap_variance'] = {'value': dist_analysis['gap_variance'], 'vote': 'classification', 'weight': 1.0}
             cls_score += 1.0
-            print(f"  -> Signal 3 - Gap variance  : Small/regular gaps ({dist_analysis['gap_variance']:.2f}) -> Classification (+1.0)")
+            narrate(f"  -> Signal 3 - Gap variance  : Small/regular gaps ({dist_analysis['gap_variance']:.2f}) -> Classification (+1.0)")
         elif dist_analysis['gap_variance'] > 5.0:
             detection['signals']['gap_variance'] = {'value': dist_analysis['gap_variance'], 'vote': 'regression', 'weight': 1.0}
             reg_score += 1.0
-            print(f"  -> Signal 3 - Gap variance  : Large/irregular gaps ({dist_analysis['gap_variance']:.2f}) -> Regression (+1.0)")
+            narrate(f"  -> Signal 3 - Gap variance  : Large/irregular gaps ({dist_analysis['gap_variance']:.2f}) -> Regression (+1.0)")
 
     # Signal B: Dtype + Unique Values combo
     if target_dtype in ['object', 'category', 'bool', 'string']:
         # Pure categorical
         detection['signals']['dtype'] = {'value': target_dtype, 'vote': 'classification', 'weight': 3.0}
         cls_score += 3.0
-        print(f"  -> Signal 4 - Target Dtype  : {target_dtype} -> Classification (+3.0)")
+        narrate(f"  -> Signal 4 - Target Dtype  : {target_dtype} -> Classification (+3.0)")
     elif target_dtype in ['float64', 'float32'] and not dist_analysis['is_integer_valued']:
         # Pure continuous float
         detection['signals']['dtype'] = {'value': target_dtype, 'vote': 'regression', 'weight': 3.0}
         reg_score += 3.0
-        print(f"  -> Signal 4 - Target Dtype  : {target_dtype} (Continuous) -> Regression (+3.0)")
+        narrate(f"  -> Signal 4 - Target Dtype  : {target_dtype} (Continuous) -> Regression (+3.0)")
     else:
         # Integer or Float-acting-as-integer
         if n_unique <= 10:
             detection['signals']['dtype'] = {'value': target_dtype, 'vote': 'classification', 'weight': 2.0}
             cls_score += 2.0
-            print(f"  -> Signal 4 - Target Dtype  : {target_dtype} (Low cardinality: {n_unique}) -> Classification (+2.0)")
+            narrate(f"  -> Signal 4 - Target Dtype  : {target_dtype} (Low cardinality: {n_unique}) -> Classification (+2.0)")
         elif n_unique > 100:
             detection['signals']['dtype'] = {'value': target_dtype, 'vote': 'regression', 'weight': 2.0}
             reg_score += 2.0
-            print(f"  -> Signal 4 - Target Dtype  : {target_dtype} (High cardinality: {n_unique}) -> Regression (+2.0)")
+            narrate(f"  -> Signal 4 - Target Dtype  : {target_dtype} (High cardinality: {n_unique}) -> Regression (+2.0)")
         else:
             # Grey zone for dtype
-            print(f"  -> Signal 4 - Target Dtype  : {target_dtype} ({n_unique} unique) -> Ambiguous (+0.0)")
+            narrate(f"  -> Signal 4 - Target Dtype  : {target_dtype} ({n_unique} unique) -> Ambiguous (+0.0)")
 
     # Signal C: Column name heuristics
     target_lower = target.lower()
@@ -272,11 +276,11 @@ def run_detector(audit, df=None, force_type=None, _auto_input=None):
     if any(p in target_lower for p in class_keywords):
         detection['signals']['name_heuristic'] = {'value': target, 'vote': 'classification', 'weight': 1.0}
         cls_score += 1.0
-        print(f"  -> Signal 5 - Name heuristic: '{target}' matches discrete keywords -> Classification (+1.0)")
+        narrate(f"  -> Signal 5 - Name heuristic: '{target}' matches discrete keywords -> Classification (+1.0)")
     elif any(p in target_lower for p in reg_keywords):
         detection['signals']['name_heuristic'] = {'value': target, 'vote': 'regression', 'weight': 1.0}
         reg_score += 1.0
-        print(f"  -> Signal 5 - Name heuristic: '{target}' matches continuous keywords -> Regression (+1.0)")
+        narrate(f"  -> Signal 5 - Name heuristic: '{target}' matches continuous keywords -> Regression (+1.0)")
 
     # Signal D: Feature types (Multivariate signal)
     vote, weight = feature_type_signal(audit)
@@ -286,44 +290,44 @@ def run_detector(audit, df=None, force_type=None, _auto_input=None):
         else:
             reg_score += weight
         detection['signals']['feature_types'] = {'value': vote, 'vote': vote, 'weight': weight}
-        print(f"  -> Signal 6 - Feature types : Majority {vote} -> {vote.capitalize()} (+{weight})")
+        narrate(f"  -> Signal 6 - Feature types : Majority {vote} -> {vote.capitalize()} (+{weight})")
 
-    print(f"  -> Total Classification score : {cls_score}")
-    print(f"  -> Total Regression score     : {reg_score}")
+    narrate(f"  -> Total Classification score : {cls_score}")
+    narrate(f"  -> Total Regression score     : {reg_score}")
 
     # Decision Logic
     ambiguous = is_genuinely_ambiguous(n_unique, target_dtype, dist_analysis)
     
     if ambiguous or (cls_score == reg_score):
-        print(f"\n  [!] Ambiguous Target Detected: '{target}'")
-        print(f"  -> Evidence for Classification:")
+        narrate(f"\n  [!] Ambiguous Target Detected: '{target}'")
+        narrate(f"  -> Evidence for Classification:")
         if n_unique <= 20:
-             print(f"     [✔] Low cardinality ({n_unique} unique values)")
+             narrate(f"     [✔] Low cardinality ({n_unique} unique values)")
         if dist_analysis['gap_variance'] < 2.0:
-             print(f"     [✔] Regular intervals between values (gap var: {dist_analysis['gap_variance']:.2f})")
+             narrate(f"     [✔] Regular intervals between values (gap var: {dist_analysis['gap_variance']:.2f})")
         if dist_analysis['entropy'] < 1.5:
-             print(f"     [✔] Concentrated value distribution (entropy: {dist_analysis['entropy']:.2f})")
+             narrate(f"     [✔] Concentrated value distribution (entropy: {dist_analysis['entropy']:.2f})")
              
-        print(f"  -> Evidence for Regression:")
+        narrate(f"  -> Evidence for Regression:")
         if reg_score > cls_score:
-             print(f"     [✔] Regression heuristic score is higher ({reg_score} vs {cls_score})")
+             narrate(f"     [✔] Regression heuristic score is higher ({reg_score} vs {cls_score})")
         if dist_analysis['entropy'] > 2.0:
-             print(f"     [✔] Wide spread of target values (entropy: {dist_analysis['entropy']:.2f})")
+             narrate(f"     [✔] Wide spread of target values (entropy: {dist_analysis['entropy']:.2f})")
 
-        print(f"\n  -> Is '{target}' a categorical label or a numeric metric?")
-        print(f"     (1) Classification - predict which category/label")
-        print(f"     (2) Regression     - predict the exact numeric scale")
+        narrate(f"\n  -> Is '{target}' a categorical label or a numeric metric?")
+        narrate(f"     (1) Classification - predict which category/label")
+        narrate(f"     (2) Regression     - predict the exact numeric scale")
 
         if _auto_input:
             choice = _auto_input
-            print(f"  -> Your choice (auto): {choice}")
+            narrate(f"  -> Your choice (auto): {choice}")
         else:
             try:
                 choice = input("  -> Your choice: ").strip()
             except EOFError:
                 # Test runner bypass
                 choice = '1' if cls_score >= reg_score else '2'
-                print(f"  -> Your choice (auto-fallback): {choice}")
+                narrate(f"  -> Your choice (auto-fallback): {choice}")
 
         if choice == '1':
             detection['problem_type'] = 'classification'
@@ -367,7 +371,7 @@ def run_detector(audit, df=None, force_type=None, _auto_input=None):
         else:
              detection['classification_subtype'] = 'many_class'
              detection['metrics_averaging'] = 'weighted'
-             print(f"  -> Warning: many_class subtype detected ({num_classes} classes). Will use LightGBM for speed.")
+             narrate(f"  -> Warning: many_class subtype detected ({num_classes} classes). Will use LightGBM for speed.")
     else:
         # Regression boundary check
         target_stats = audit.get('stats', {}).get(target, {})
@@ -377,7 +381,7 @@ def run_detector(audit, df=None, force_type=None, _auto_input=None):
         if t_min is not None and t_max is not None:
             if 0.0 <= t_min and t_max <= 1.0:
                 detection['regression_subtype'] = 'probability'
-                print("  -> Target appears to be a probability/rate (0-1 domain)")
+                narrate("  -> Target appears to be a probability/rate (0-1 domain)")
             elif t_min >= 0.0:
                 detection['regression_subtype'] = 'bounded_positive'
             else:
@@ -388,9 +392,9 @@ def run_detector(audit, df=None, force_type=None, _auto_input=None):
         target_skews = audit.get('skewed_columns', {}).get(target, {})
         if target_skews.get('action') == 'log_transform':
              detection['target_log_transform'] = True
-             print("  -> Detection: Target was previously log-transformed. Evaluator will back-transform.")
+             narrate("  -> Detection: Target was previously log-transformed. Evaluator will back-transform.")
 
-    print(f"  -> Problem type finalized as: {detection['problem_type'].capitalize()} ({detection['confidence']} confidence)\n")
+    narrate(f"  -> Problem type finalized as: {detection['problem_type'].capitalize()} ({detection['confidence']} confidence)\n")
 
     # Final check
     sanity_check(detection, audit)

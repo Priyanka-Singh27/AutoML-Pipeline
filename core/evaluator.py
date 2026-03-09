@@ -5,6 +5,10 @@ Generates metrics, confusion matrix analysis, SHAP feature importances,
 limitations, and stitches the final inference pipeline.
 """
 
+from core.narrator import narrate
+from core.headers import Section
+
+
 import os
 import numpy as np
 import pandas as pd
@@ -115,10 +119,10 @@ def _evaluate_classification(model, X_tr, X_te, y_tr, y_te, detection, audit, ev
                 evaluation['roc_auc'] = round(roc_auc_score(y_te, y_prob, multi_class='ovr', average='weighted'), 4)
         except ValueError as e:
             evaluation['roc_auc'] = None
-            print(f"  [!] ROC-AUC could not be computed on subset: {e}")
+            narrate(f"  [!] ROC-AUC could not be computed on subset: {e}")
             
-    print(f"  -> F1 (weighted) : {evaluation['f1_weighted']}")
-    print(f"  -> ROC-AUC       : {evaluation['roc_auc']}")
+    narrate(f"  -> F1 (weighted) : {evaluation['f1_weighted']}")
+    narrate(f"  -> ROC-AUC       : {evaluation['roc_auc']}")
     
 
 def _evaluate_regression(model, X_tr, X_te, y_tr, y_te, detection, audit, evaluation):
@@ -153,9 +157,9 @@ def _evaluate_regression(model, X_tr, X_te, y_tr, y_te, detection, audit, evalua
         insights.append(f"Errors scale with target magnitude (Heteroscedasticity detected). Reliability weakens at extremes.")
     evaluation['insights'] = " ".join(insights)
     
-    print(f"  -> RMSE : {evaluation['rmse']}")
-    print(f"  -> MAE  : {evaluation['mae']} (Off by {evaluation['mape']:.1f}%)")
-    print(f"  -> Adj R² : {evaluation['adj_r2']}")
+    narrate(f"  -> RMSE : {evaluation['rmse']}")
+    narrate(f"  -> MAE  : {evaluation['mae']} (Off by {evaluation['mape']:.1f}%)")
+    narrate(f"  -> Adj R² : {evaluation['adj_r2']}")
 
 
 def _evaluate_clustering(model, X, detection, audit, evaluation):
@@ -197,8 +201,8 @@ def _evaluate_clustering(model, X, detection, audit, evaluation):
     except Exception as e:
         evaluation['cluster_visualization'] = None
         
-    print(f"  -> Clusters found    : {n_clusters}")
-    print(f"  -> Silhouette score  : {evaluation['silhouette_score']}")
+    narrate(f"  -> Clusters found    : {n_clusters}")
+    narrate(f"  -> Silhouette score  : {evaluation['silhouette_score']}")
 
 
 def _generate_shap(model, X_tr, X_te, detection, evaluation, model_name):
@@ -207,11 +211,11 @@ def _generate_shap(model, X_tr, X_te, detection, evaluation, model_name):
     if problem_type == 'clustering':
         return
         
-    print(f"  -> Generating Model Explainability (SHAP)...")
+    narrate(f"  -> Generating Model Explainability (SHAP)...")
     
     try:
         if model_name in ['svc', 'svr', 'logistic_regression', 'ridge']:
-            print("     [!] Computing SHAP via KernelExplainer. Sampling background to preserve time budget.")
+            narrate("     [!] Computing SHAP via KernelExplainer. Sampling background to preserve time budget.")
             background = shap.sample(X_tr, min(100, len(X_tr)), random_state=42)
             X_test_shap = X_te.sample(min(200, len(X_te)), random_state=42)
             
@@ -249,7 +253,7 @@ def _generate_shap(model, X_tr, X_te, detection, evaluation, model_name):
         evaluation['shap_feature_importance'] = dict(sorted(imp_dict.items(), key=lambda item: item[1], reverse=True))
         
     except Exception as e:
-        print(f"  [!] SHAP generation failed: {type(e).__name__} - {str(e)}")
+        narrate(f"  [!] SHAP generation failed: {type(e).__name__} - {str(e)}")
 
 
 def _generate_limitations(audit, detection, study, evaluation):
@@ -286,7 +290,7 @@ def run_evaluation(model, X, y, detection, audit, study, preprocessor_pipeline=N
     Main entrypoint enforcing single responsibility over model reporting.
     Returns explicit dict fulfilling downstream serialization contracts.
     """
-    print(f"\n[EVALUATION]")
+    narrate(f"\n[EVALUATION]")
     problem_type = detection['problem_type']
     model_name = getattr(study, 'model_name', study.best_params.get('model', 'unknown')) if hasattr(study, 'best_params') else getattr(study, 'model_name', 'Custom')
 

@@ -4,6 +4,10 @@ Handles Optuna hyperparameter optimization and algorithm search, adhering to
 Single Responsibility, robust trial-level error handling, and dispatch architecture.
 """
 
+from core.narrator import narrate
+from core.headers import Section
+
+
 import time
 import warnings
 import numpy as np
@@ -62,12 +66,12 @@ def _get_time_callback(time_budget, start_time):
         duration = trial.duration.total_seconds() if trial.duration else 0.0
         score_val = trial.value if trial.value is not None else float('-inf')
         
-        print(f"  Trial {trial.number:>3} | {model:<20} | "
+        narrate(f"  Trial {trial.number:>3} | {model:<20} | "
               f"Score={score_val:.4f} | "
               f"[{duration:.1f}s] | ~{remaining:.0f}s remaining{marker}")
         
         if 0 < remaining < 15:
-            print(f"  -> Time budget nearly exhausted — wrapping up...")
+            narrate(f"  -> Time budget nearly exhausted — wrapping up...")
             
     return narration_callback
 
@@ -101,7 +105,7 @@ def build_objective(X_train, y_train, detection, audit, random_state=42):
             if n_rows <= 10000:
                 pool.append('svc')
             elif trial.number == 0:
-                print("  -> Removed SVC from pool (dataset > 10,000 rows)")
+                narrate("  -> Removed SVC from pool (dataset > 10,000 rows)")
                 
             model_name = trial.suggest_categorical('model', pool)
         else: # regression
@@ -109,7 +113,7 @@ def build_objective(X_train, y_train, detection, audit, random_state=42):
             if n_rows <= 10000:
                 pool.append('svr')
             elif trial.number == 0:
-                print("  -> Removed SVR from pool (dataset > 10,000 rows)")
+                narrate("  -> Removed SVR from pool (dataset > 10,000 rows)")
                 
             model_name = trial.suggest_categorical('model', pool)
 
@@ -146,7 +150,7 @@ def build_objective(X_train, y_train, detection, audit, random_state=42):
             raise
         except Exception as e:
             # Swallow crash to not kill the overarching study, returning absolute worst score
-            print(f"  [!] Trial {trial.number} failed ({model_name}): {type(e).__name__} - {str(e)}")
+            narrate(f"  [!] Trial {trial.number} failed ({model_name}): {type(e).__name__} - {str(e)}")
             return float('-inf')
 
     return objective, scale_weight
@@ -278,7 +282,7 @@ def rebuild_model(best_params, problem_type, random_state, scale_weight):
 
 def _run_clustering(X, random_state, _auto_input):
     """Fully distinct mathematical discovery layer for Clustering data."""
-    print("  -> Clustering mode detected. Initiating pattern discovery...")
+    narrate("  -> Clustering mode detected. Initiating pattern discovery...")
     n_samples = len(X)
     
     # K-Means Auto-Detect
@@ -287,7 +291,7 @@ def _run_clustering(X, random_state, _auto_input):
     silhouettes_km = []
     inertias = []
     
-    print(f"  -> Testing K-Means (k=2 to {max_k})...")
+    narrate(f"  -> Testing K-Means (k=2 to {max_k})...")
     for k in k_range:
         km = KMeans(n_clusters=k, random_state=random_state, n_init=10).fit(X)
         inertias.append(km.inertia_)
@@ -305,16 +309,16 @@ def _run_clustering(X, random_state, _auto_input):
         distances.append(dist)
     best_k_elb = k_range[np.argmax(distances)]
     
-    print(f"     Elbow suggests: {best_k_elb} | Silhouette suggests: {best_k_sil}")
+    narrate(f"     Elbow suggests: {best_k_elb} | Silhouette suggests: {best_k_sil}")
     target_k = best_k_sil
     if best_k_sil != best_k_elb:
-        print("     [!] Methods disagree. Falling back to Silhouette mechanically.")
+        narrate("     [!] Methods disagree. Falling back to Silhouette mechanically.")
         
     if _auto_input is None:
         user_k = input(f"  -> Press Enter to accept [{target_k}], or manually specify K: ").strip()
         if user_k.isdigit():
             target_k = int(user_k)
-            print(f"     User override accepted. Using K={target_k}.")
+            narrate(f"     User override accepted. Using K={target_k}.")
             
     # Baseline K-Means Candidate
     km_final = KMeans(n_clusters=target_k, random_state=random_state, n_init=10).fit(X)
@@ -323,7 +327,7 @@ def _run_clustering(X, random_state, _auto_input):
     best_name = f"KMeans (k={target_k})"
     
     # DBSCAN k-NN Auto-Detect
-    print(f"  -> Testing DBSCAN (k-NN distance estimated eps)...")
+    narrate(f"  -> Testing DBSCAN (k-NN distance estimated eps)...")
     nn = NearestNeighbors(n_neighbors=5).fit(X)
     distances_nn, _ = nn.kneighbors(X)
     eps_est = np.percentile(distances_nn[:, -1], 90) # Robust density threshold
@@ -344,7 +348,7 @@ def _run_clustering(X, random_state, _auto_input):
                 pass 
                 
     # Agglomerative Grid
-    print(f"  -> Testing Agglomerative Hierarchical (target k={target_k})...")
+    narrate(f"  -> Testing Agglomerative Hierarchical (target k={target_k})...")
     for linkage in ['ward', 'complete', 'average']:
         agg = AgglomerativeClustering(n_clusters=target_k, linkage=linkage).fit(X)
         try:
@@ -356,7 +360,7 @@ def _run_clustering(X, random_state, _auto_input):
         except ValueError:
             pass
             
-    print(f"  [RESULT] Selected {best_name} with silhouette = {best_score:.4f}")
+    narrate(f"  [RESULT] Selected {best_name} with silhouette = {best_score:.4f}")
     
     # Wrapper pattern required to conform to Optuna contract
     class _StubStudy:
@@ -380,7 +384,7 @@ def _run_clustering(X, random_state, _auto_input):
 
 def run_optuna_study(X, y, detection, audit, time_budget=120, random_state=42, _auto_input=None):
     """Execution entrypoint strictly isolating the Tuning layers."""
-    print(f"\n[OPTUNA TUNING]")
+    narrate(f"\n[OPTUNA TUNING]")
     problem_type = detection['problem_type']
     
     if problem_type == 'clustering':
@@ -406,17 +410,17 @@ def run_optuna_study(X, y, detection, audit, time_budget=120, random_state=42, _
             callbacks=[_get_time_callback(time_budget, start_time)]
         )
     except Exception as e:
-        print(f"  [!] Study execution failed structurally: {e}")
+        narrate(f"  [!] Study execution failed structurally: {e}")
         
     # 4. Dispatch construction mechanism
     elapsed = time.time() - start_time
     if len(study.trials) == 0 or study.best_value == float('-inf'):
         raise RuntimeError("Optuna study completed 0 successful trials.")
         
-    print(f"\n  -> Found best model: {study.best_trial.params['model']} "
+    narrate(f"\n  -> Found best model: {study.best_trial.params['model']} "
           f"(Score: {study.best_value:.4f}) in {elapsed:.1f}s")
           
-    print(f"  -> Retraining optimized parameters strictly across entire dataset...")
+    narrate(f"  -> Retraining optimized parameters strictly across entire dataset...")
     final_model = rebuild_model(study.best_trial.params, problem_type, random_state, scale_weight)
     final_model.fit(X, y)
     
