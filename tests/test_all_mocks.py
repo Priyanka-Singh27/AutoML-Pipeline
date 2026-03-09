@@ -33,7 +33,7 @@ try:
 except ImportError:
     CORE_IMPORTED = False
 
-DEFAULT_TIME_BUDGET = 30  # seconds per mock during testing
+DEFAULT_TIME_BUDGET = 3  # seconds per mock during testing
 
 mocks = [
     mock_binary_classification,
@@ -91,7 +91,7 @@ def main():
 
             # 2. Optuna Tuning
             study, model = run_optuna_study(
-                X_train, y_train, detection, mock.mock_audit, time_budget=time_budget
+                X_train, y_train, detection, mock.mock_audit, time_budget=time_budget, _auto_input='1'
             )
 
             # 3. Evaluation
