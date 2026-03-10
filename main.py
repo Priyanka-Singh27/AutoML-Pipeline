@@ -13,18 +13,8 @@ from core.narrator import narrate
 from core.headers import Section
 from core.exceptions import PipelineStepError, ContractViolationError
 
-# --- Pipeline Interfaces (Mocked elements + Completed elements) ---
-def run_auditor_mock(df, args):
-    audit = {}
-    if args.target and args.target in df.columns:
-        audit['target_column'] = args.target
-        audit['target_dtype'] = str(df[args.target].dtype)
-        audit['target_unique_values'] = df[args.target].nunique()
-    return audit
-
-def run_preprocessor_mock(df, audit):
-    # This mock DELIBERATELY passes the formal contract to avoid halting integration
-    return df.copy(), "mock_scaler"
+from core.auditor import run_auditor
+from core.preprocessor import run_preprocessor
 
 # Already completed by Person 2
 from core.detector import run_detector
@@ -58,8 +48,8 @@ class PipelineState:
     # Intermediate outputs — populated as pipeline runs
     audit:         dict            = None
     detection:     dict            = None
-    df_clean:      object          = None  # pd.DataFrame
-    fitted_scaler: object          = None  # StandardScaler
+    df_clean:      pd.DataFrame    = None
+    fitted_preprocessor: object    = None  # ColumnTransformer
     feature_result: dict           = None
     study:         object          = None  # Optuna Study
     best_model:    object          = None
@@ -185,11 +175,11 @@ def save_model_artifacts(state, args):
     plots_dir = Path("outputs/plots")
     plots_dir.mkdir(parents=True, exist_ok=True)
     
-    if 'shap_summary_plot' in evaluation and evaluation['shap_summary_plot']:
+    if 'shap_summary_plot' in evaluation and evaluation['shap_summary_plot'] is not None:
         evaluation['shap_summary_plot'].savefig(plots_dir / "shap_summary.png", bbox_inches='tight', dpi=150)
-    if 'shap_waterfall_plot' in evaluation and evaluation['shap_waterfall_plot']:
+    if 'shap_waterfall_plot' in evaluation and evaluation['shap_waterfall_plot'] is not None:
         evaluation['shap_waterfall_plot'].savefig(plots_dir / "shap_waterfall.png", bbox_inches='tight', dpi=150)
-    if 'residual_plot' in evaluation and evaluation['residual_plot']:
+    if 'residual_plot' in evaluation and evaluation['residual_plot'] is not None:
         evaluation['residual_plot'].savefig(plots_dir / "residual_plot.png", bbox_inches='tight', dpi=150)
         
     cm_array = evaluation.get('confusion_matrix')
@@ -241,12 +231,11 @@ def execute_pipeline(args: PipelineArgs):
             df = pd.read_csv(args.file)
             step.log(f"Shape: {df.shape[0]} rows, {df.shape[1]} columns")
 
-        # Step 1: Data Audit (Mocked for now)
+        # Step 1: Data Audit
         with PipelineStep(Section.DATA_AUDIT, state) as step:
-            # Person 1 integration target
-            audit = run_auditor_mock(df, args)
+            audit = run_auditor(df, args)
             state.audit = audit
-            step.log("Audit simulated.")
+            step.log("Audit complete.")
 
         # Step 2: Target Detection
         with PipelineStep(Section.TARGET_DETECTION, state) as step:
@@ -254,23 +243,21 @@ def execute_pipeline(args: PipelineArgs):
             detection = run_detector(audit, df=df, force_type=args.problem, _auto_input='1')
             state.detection = detection
 
-        # Step 3: Preprocessing (Mocked for now, but enforces contract)
+        # Step 3: Preprocessing
         with PipelineStep("PREPROCESSING", state) as step:
-            # Person 1 integration target
-            result = run_preprocessor_mock(df, audit)
+            result = run_preprocessor(df, audit, args)
             
-            # Loud Contract Enforcement!
             if not (isinstance(result, tuple) and len(result) == 2):
                 raise ContractViolationError(
-                    "run_preprocessor() must return a tuple of exactly two elements: (df_clean, fitted_scaler). "
+                    "run_preprocessor() must return a tuple of exactly two elements: (df_clean, fitted_preprocessor). "
                     f"Received: {type(result)}. "
                     "Person 1 must update their preprocessor return signature before main.py integration can proceed. "
                     "See contracts/preprocessing_contract.md for the agreed specification."
                 )
             
-            df_clean, fitted_scaler = result
+            df_clean, fitted_preprocessor = result
             state.df_clean = df_clean
-            state.fitted_scaler = fitted_scaler
+            state.fitted_preprocessor = fitted_preprocessor
             step.log(f"Preprocessed shape: {df_clean.shape[0]} rows, {df_clean.shape[1]} columns")
 
         # Split features and target explicitly before ML Engine
@@ -319,7 +306,7 @@ def execute_pipeline(args: PipelineArgs):
                 best_model, 
                 fs_results['X_train'], fs_results['y_train'], 
                 detection, audit, study,
-                preprocessor_pipeline=state.fitted_scaler,
+                preprocessor_pipeline=state.fitted_preprocessor,
                 feature_selector_pipeline=fs_results['pipeline']
             )
             state.evaluation = evaluation

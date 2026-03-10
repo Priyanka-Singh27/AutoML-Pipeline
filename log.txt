@@ -48,91 +48,83 @@ PREPROCESSING
   -> Features remaining: 11 / 12
   -> Level 5 | Post-Selection Validation (3-Fold CV)
   -> Validation: F1 remained stable (0.9087 -> 0.9085)
-  [+] [FEATURE SELECTION] completed in 8.02s
+  [+] [FEATURE SELECTION] completed in 8.29s
 
 [OPTUNA TUNING]
 
 [OPTUNA TUNING]
   Trial   0 | xgboost              | Score=0.8273 | [1.3s] | ~29s remaining  <- new best
-  Trial   1 | xgboost              | Score=0.8649 | [1.0s] | ~28s remaining  <- new best
+  Trial   1 | xgboost              | Score=0.8649 | [1.2s] | ~27s remaining  <- new best
   Trial   2 | lightgbm             | Score=0.9247 | [0.7s] | ~27s remaining  <- new best
   Trial   3 | svc                  | Score=0.9255 | [0.8s] | ~26s remaining  <- new best
-  Trial   4 | lightgbm             | Score=0.8521 | [0.6s] | ~26s remaining
-  Trial   5 | xgboost              | Score=0.9025 | [4.0s] | ~22s remaining
-  Trial   6 | xgboost              | Score=0.8736 | [0.1s] | ~21s remaining
-  Trial   7 | logistic_regression  | Score=0.7812 | [0.0s] | ~21s remaining
-  Trial   8 | logistic_regression  | Score=0.7825 | [0.0s] | ~21s remaining
-  Trial   9 | svc                  | Score=0.8750 | [0.2s] | ~21s remaining
-  Trial  10 | svc                  | Score=0.9207 | [0.8s] | ~20s remaining
-  Trial  11 | lightgbm             | Score=0.9245 | [0.4s] | ~20s remaining
-  Trial  12 | random_forest        | Score=0.7975 | [0.6s] | ~19s remaining
-  Trial  13 | svc                  | Score=0.7598 | [0.6s] | ~19s remaining
-  Trial  14 | lightgbm             | Score=0.9270 | [0.7s] | ~18s remaining  <- new best
-  Trial  15 | random_forest        | Score=0.9050 | [0.2s] | ~18s remaining
-  Trial  16 | lightgbm             | Score=0.9240 | [1.6s] | ~16s remaining
-  Trial  17 | svc                  | Score=0.9255 | [0.8s] | ~16s remaining
-  Trial  18 | svc                  | Score=0.8575 | [0.2s] | ~15s remaining
-  Trial  19 | lightgbm             | Score=0.9192 | [1.3s] | ~14s remaining
+  Trial   4 | lightgbm             | Score=0.8521 | [0.7s] | ~25s remaining
+  Trial   5 | xgboost              | Score=0.9025 | [4.7s] | ~21s remaining
+  Trial   6 | xgboost              | Score=0.8736 | [0.1s] | ~20s remaining
+  Trial   7 | logistic_regression  | Score=0.7812 | [0.0s] | ~20s remaining
+  Trial   8 | logistic_regression  | Score=0.7825 | [0.0s] | ~20s remaining
+  Trial   9 | svc                  | Score=0.8750 | [0.2s] | ~20s remaining
+  Trial  10 | svc                  | Score=0.9207 | [0.8s] | ~19s remaining
+  Trial  11 | lightgbm             | Score=0.9245 | [0.4s] | ~19s remaining
+  Trial  12 | random_forest        | Score=0.7975 | [0.6s] | ~18s remaining
+  Trial  13 | svc                  | Score=0.7598 | [0.5s] | ~18s remaining
+  Trial  14 | lightgbm             | Score=0.9270 | [0.7s] | ~17s remaining  <- new best
+  Trial  15 | random_forest        | Score=0.9050 | [0.2s] | ~17s remaining
+  Trial  16 | lightgbm             | Score=0.9240 | [1.7s] | ~15s remaining
+  Trial  17 | svc                  | Score=0.9255 | [0.8s] | ~15s remaining
   -> Time budget nearly exhausted — wrapping up...
-  Trial  20 | logistic_regression  | Score=0.7587 | [0.0s] | ~14s remaining
+  Trial  18 | svc                  | Score=0.8575 | [0.3s] | ~14s remaining
   -> Time budget nearly exhausted — wrapping up...
-  Trial  21 | svc                  | Score=0.9260 | [0.7s] | ~13s remaining
+  Trial  19 | lightgbm             | Score=0.9192 | [1.3s] | ~13s remaining
   -> Time budget nearly exhausted — wrapping up...
-  Trial  22 | svc                  | Score=0.9252 | [0.7s] | ~13s remaining
+  Trial  20 | logistic_regression  | Score=0.7587 | [0.0s] | ~13s remaining
   -> Time budget nearly exhausted — wrapping up...
-  Trial  23 | svc                  | Score=0.8987 | [0.2s] | ~13s remaining
+  Trial  21 | svc                  | Score=0.9260 | [0.8s] | ~12s remaining
   -> Time budget nearly exhausted — wrapping up...
-  Trial  24 | svc                  | Score=0.7523 | [0.5s] | ~12s remaining
+  Trial  22 | svc                  | Score=0.9252 | [0.8s] | ~11s remaining
   -> Time budget nearly exhausted — wrapping up...
-  Trial  25 | random_forest        | Score=0.9000 | [0.3s] | ~12s remaining
+  Trial  23 | svc                  | Score=0.8987 | [0.2s] | ~11s remaining
   -> Time budget nearly exhausted — wrapping up...
-  Trial  26 | lightgbm             | Score=0.8825 | [0.4s] | ~11s remaining
+  Trial  24 | svc                  | Score=0.7523 | [0.5s] | ~11s remaining
   -> Time budget nearly exhausted — wrapping up...
-  Trial  27 | svc                  | Score=0.9075 | [0.2s] | ~11s remaining
+  Trial  25 | random_forest        | Score=0.9000 | [0.3s] | ~10s remaining
   -> Time budget nearly exhausted — wrapping up...
-  Trial  28 | svc                  | Score=0.7987 | [0.3s] | ~11s remaining
+  Trial  26 | lightgbm             | Score=0.8825 | [0.4s] | ~10s remaining
   -> Time budget nearly exhausted — wrapping up...
-  Trial  29 | lightgbm             | Score=0.9312 | [0.9s] | ~10s remaining  <- new best
+  Trial  27 | svc                  | Score=0.9075 | [0.2s] | ~10s remaining
   -> Time budget nearly exhausted — wrapping up...
-  Trial  30 | lightgbm             | Score=0.9280 | [0.8s] | ~9s remaining
+  Trial  28 | svc                  | Score=0.7987 | [0.3s] | ~9s remaining
   -> Time budget nearly exhausted — wrapping up...
-  Trial  31 | lightgbm             | Score=0.9305 | [0.8s] | ~8s remaining
+  Trial  29 | lightgbm             | Score=0.9312 | [0.9s] | ~9s remaining  <- new best
   -> Time budget nearly exhausted — wrapping up...
-  Trial  32 | lightgbm             | Score=0.9325 | [0.7s] | ~8s remaining  <- new best
+  Trial  30 | lightgbm             | Score=0.9280 | [0.8s] | ~8s remaining
   -> Time budget nearly exhausted — wrapping up...
-  Trial  33 | lightgbm             | Score=0.9312 | [0.9s] | ~7s remaining
+  Trial  31 | lightgbm             | Score=0.9305 | [0.8s] | ~7s remaining
   -> Time budget nearly exhausted — wrapping up...
-  Trial  34 | lightgbm             | Score=0.9297 | [1.1s] | ~6s remaining
+  Trial  32 | lightgbm             | Score=0.9325 | [1.0s] | ~6s remaining  <- new best
   -> Time budget nearly exhausted — wrapping up...
-  Trial  35 | lightgbm             | Score=0.9225 | [0.1s] | ~5s remaining
+  Trial  33 | lightgbm             | Score=0.9312 | [1.0s] | ~5s remaining
   -> Time budget nearly exhausted — wrapping up...
-  Trial  36 | lightgbm             | Score=0.9325 | [0.8s] | ~5s remaining  <- new best
+  Trial  34 | lightgbm             | Score=0.9297 | [1.2s] | ~4s remaining
   -> Time budget nearly exhausted — wrapping up...
-  Trial  37 | lightgbm             | Score=0.9300 | [0.8s] | ~4s remaining
+  Trial  35 | lightgbm             | Score=0.9225 | [0.1s] | ~4s remaining
   -> Time budget nearly exhausted — wrapping up...
-  Trial  38 | xgboost              | Score=0.9162 | [0.1s] | ~4s remaining
+  Trial  36 | lightgbm             | Score=0.9325 | [0.9s] | ~3s remaining  <- new best
   -> Time budget nearly exhausted — wrapping up...
-  Trial  39 | lightgbm             | Score=0.9262 | [0.3s] | ~3s remaining
+  Trial  37 | lightgbm             | Score=0.9300 | [0.8s] | ~2s remaining
   -> Time budget nearly exhausted — wrapping up...
-  Trial  40 | lightgbm             | Score=0.9319 | [0.5s] | ~3s remaining
+  Trial  38 | xgboost              | Score=0.9162 | [0.1s] | ~2s remaining
   -> Time budget nearly exhausted — wrapping up...
-  Trial  41 | lightgbm             | Score=0.9297 | [0.6s] | ~2s remaining
+  Trial  39 | lightgbm             | Score=0.9262 | [0.3s] | ~2s remaining
   -> Time budget nearly exhausted — wrapping up...
-  Trial  42 | lightgbm             | Score=0.9300 | [1.0s] | ~1s remaining
+  Trial  40 | lightgbm             | Score=0.9319 | [0.5s] | ~1s remaining
   -> Time budget nearly exhausted — wrapping up...
-  Trial  43 | lightgbm             | Score=0.9250 | [0.2s] | ~1s remaining
+  Trial  41 | lightgbm             | Score=0.9297 | [0.6s] | ~0s remaining
   -> Time budget nearly exhausted — wrapping up...
-  Trial  44 | lightgbm             | Score=0.8849 | [0.1s] | ~1s remaining
-  -> Time budget nearly exhausted — wrapping up...
-  Trial  45 | xgboost              | Score=0.9087 | [0.3s] | ~1s remaining
-  -> Time budget nearly exhausted — wrapping up...
-  Trial  46 | logistic_regression  | Score=0.7649 | [0.0s] | ~1s remaining
-  -> Time budget nearly exhausted — wrapping up...
-  Trial  47 | lightgbm             | Score=0.9295 | [1.3s] | ~0s remaining
+  Trial  42 | lightgbm             | Score=0.9300 | [1.0s] | ~0s remaining
 
   -> Found best model: lightgbm (Score: 0.9325) in 30.6s
   -> Retraining optimized parameters strictly across entire dataset...
-  [+] [OPTUNA TUNING] completed in 30.77s
+  [+] [OPTUNA TUNING] completed in 30.76s
 
 [EVALUATION]
 
@@ -140,11 +132,11 @@ PREPROCESSING
   -> F1 (weighted) : 0.925
   -> ROC-AUC       : 0.9774
   -> Generating Model Explainability (SHAP)...
-  [+] [EVALUATION] completed in 0.78s
+  [+] [EVALUATION] completed in 1.09s
 
 ARTIFACT PRESERVATION
   -> Joblib targets generated for API mapping.
-  [+] ARTIFACT PRESERVATION completed in 0.02s
+  [+] ARTIFACT PRESERVATION completed in 0.30s
 
 [DEPLOYMENT]
 Training complete. How would you like to save the model?
@@ -165,4 +157,4 @@ Training complete. How would you like to save the model?
   Model saved   : outputs\models\model.joblib
   [!] weasyprint is not installed. PDF generation aborted. Use --report terminal.
 
-[+] Pipeline execution completed successfully in 39.61s.
+[+] Pipeline execution completed successfully in 40.46s.

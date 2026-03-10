@@ -225,11 +225,13 @@ def _generate_shap(model, X_tr, X_te, detection, evaluation, model_name):
             explainer = shap.KernelExplainer(pred_func, background)
             shap_vals = explainer.shap_values(X_test_shap)
             used_cols = X_test_shap.columns
+            shap_data = X_test_shap
         else:
             # Tree-based
             explainer = shap.TreeExplainer(model)
             shap_vals = explainer.shap_values(X_te)
             used_cols = X_te.columns
+            shap_data = X_te
 
         evaluation['shap_explainer'] = explainer
         
@@ -258,6 +260,18 @@ def _generate_shap(model, X_tr, X_te, detection, evaluation, model_name):
             imp_dict[col] = round(float(mean_abs[idx]), 5)
             
         evaluation['shap_feature_importance'] = dict(sorted(imp_dict.items(), key=lambda item: item[1], reverse=True))
+        
+        import matplotlib.pyplot as plt
+        fig_summary, ax_summary = plt.subplots(figsize=(8, 6))
+        plt.figure(fig_summary.number)
+        
+        if isinstance(shap_vals, list):
+            shap.summary_plot(shap_vals, shap_data, plot_type="bar", show=False)
+        else:
+            shap.summary_plot(shap_vals, shap_data, show=False)
+            
+        evaluation['shap_summary_plot'] = fig_summary
+        evaluation['shap_waterfall_plot'] = None
         
     except Exception as e:
         narrate(f"  [!] SHAP generation failed: {type(e).__name__} - {str(e)}")
