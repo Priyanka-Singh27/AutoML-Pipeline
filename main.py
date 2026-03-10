@@ -14,9 +14,13 @@ from core.headers import Section
 from core.exceptions import PipelineStepError, ContractViolationError
 
 # --- Pipeline Interfaces (Mocked elements + Completed elements) ---
-# To be replaced when Person 1 finishes
-def run_auditor_mock(df):
-    return {}
+def run_auditor_mock(df, args):
+    audit = {}
+    if args.target and args.target in df.columns:
+        audit['target_column'] = args.target
+        audit['target_dtype'] = str(df[args.target].dtype)
+        audit['target_unique_values'] = df[args.target].nunique()
+    return audit
 
 def run_preprocessor_mock(df, audit):
     # This mock DELIBERATELY passes the formal contract to avoid halting integration
@@ -98,7 +102,7 @@ class PipelineStep:
         self.state.step_times[self.step_name] = duration
         
         if exc_type is not None:
-            narrate(f"  [!] ✘ {self.step_name} failed after {duration:.2f}s")
+            narrate(f"  [!] [FAIL] {self.step_name} failed after {duration:.2f}s")
             self.state.failed_at = self.step_name
             self.state.error = str(exc_val)
             
@@ -129,16 +133,83 @@ def prompt_deployment(evaluation, args):
         choice = '1'
 
     if choice in ('1', '3'):
-        # save_model(evaluation['full_pipeline'], args)
-        narrate("  [+] Model saved to outputs/models/")
+        narrate("  [+] Model artifacts already staged at outputs/models/")
     if choice in ('2', '3'):
-        # launch_api(evaluation['full_pipeline'], evaluation, args)
-        narrate("  [+] API Launched.")
+        import subprocess
+        narrate("  [+] Launching FastAPI interface...")
+        narrate("  -> Endpoint active at http://127.0.0.1:8000")
+        try:
+            subprocess.run(["uvicorn", "api.app:app", "--host", "127.0.0.1", "--port", "8000"], check=True)
+        except KeyboardInterrupt:
+            narrate("\n  [+] API gracefully stopped.")
+
+from reporting.generator import generate_pdf_report, generate_terminal_report
+import joblib
+
+def save_model_artifacts(state, args):
+    """Persists pipeline block and metadata to joblib for API consumption."""
+    evaluation = state.evaluation
+    detection = state.detection
+    
+    if not evaluation:
+        return
+        
+    out_dir = Path("outputs/models")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    
+    pipeline = evaluation.get('full_pipeline')
+    if pipeline is not None:
+        joblib.dump(pipeline, out_dir / "model.joblib")
+        evaluation['model_path'] = str(out_dir / "model.joblib")
+        
+    # Build complete metadata struct for inference logic
+    expected_cols = getattr(state.df_clean, 'columns', []).tolist() if hasattr(state.df_clean, 'columns') else []
+    if args.target and args.target in expected_cols:
+        expected_cols.remove(args.target)
+        
+    metadata = {
+        'best_model_name': evaluation.get('best_model_name', 'Unknown'),
+        'problem_type': detection.get('problem_type', 'Unknown'),
+        'algorithm': detection.get('algorithm', evaluation.get('best_model_name', 'Unknown')),
+        'trained_at': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        'expected_columns': expected_cols,
+        'class_labels': detection.get('class_labels', []),
+        'f1_weighted': evaluation.get('f1_weighted'),
+        'roc_auc': evaluation.get('roc_auc'),
+        'rmse': evaluation.get('rmse'),
+        'r2': evaluation.get('r2'),
+        'limitations': evaluation.get('limitations', [])
+    }
+    joblib.dump(metadata, out_dir / "model_metadata.joblib")
+    
+    plots_dir = Path("outputs/plots")
+    plots_dir.mkdir(parents=True, exist_ok=True)
+    
+    if 'shap_summary_plot' in evaluation and evaluation['shap_summary_plot']:
+        evaluation['shap_summary_plot'].savefig(plots_dir / "shap_summary.png", bbox_inches='tight', dpi=150)
+    if 'shap_waterfall_plot' in evaluation and evaluation['shap_waterfall_plot']:
+        evaluation['shap_waterfall_plot'].savefig(plots_dir / "shap_waterfall.png", bbox_inches='tight', dpi=150)
+    if 'residual_plot' in evaluation and evaluation['residual_plot']:
+        evaluation['residual_plot'].savefig(plots_dir / "residual_plot.png", bbox_inches='tight', dpi=150)
+        
+    cm_array = evaluation.get('confusion_matrix')
+    if cm_array is not None and type(cm_array).__name__ == 'ndarray':
+        from reporting.generator import render_confusion_matrix
+        import matplotlib.pyplot as plt
+        class_labels = detection.get('class_labels', [])
+        if not class_labels:
+            class_labels = [str(i) for i in range(len(cm_array))]
+            
+        fig_cm = render_confusion_matrix(cm_array, class_labels)
+        fig_cm.savefig(plots_dir / "confusion_matrix.png", bbox_inches='tight', dpi=150)
+        plt.close(fig_cm)
 
 def run_reporter(state, args):
-    narrate(f"\n{Section.REPORT}")
-    narrate("  -> Generating PDF report...")
-    narrate("  [+] Report saved to outputs/reports/final_report.pdf")
+    if args.report in ('terminal', 'both'):
+        generate_terminal_report(state, args)
+        
+    if args.report in ('pdf', 'both'):
+        generate_pdf_report(state, args)
 
 
 # --- The Main Logic ---
@@ -173,7 +244,7 @@ def execute_pipeline(args: PipelineArgs):
         # Step 1: Data Audit (Mocked for now)
         with PipelineStep(Section.DATA_AUDIT, state) as step:
             # Person 1 integration target
-            audit = run_auditor_mock(df)
+            audit = run_auditor_mock(df, args)
             state.audit = audit
             step.log("Audit simulated.")
 
@@ -219,6 +290,8 @@ def execute_pipeline(args: PipelineArgs):
             audit['target_column'] = args.target or 'target'
             audit['target_dtype'] = 'int64'
             audit['target_unique_values'] = 2
+            detection['num_classes'] = 2
+            detection['class_labels'] = [0, 1]
 
         # Step 4: Feature Selection
         with PipelineStep(Section.FEATURE_SELECTION, state) as step:
@@ -245,15 +318,21 @@ def execute_pipeline(args: PipelineArgs):
             evaluation = run_evaluation(
                 best_model, 
                 fs_results['X_train'], fs_results['y_train'], 
-                detection, audit, study, 
-                random_state=args.random_state
+                detection, audit, study,
+                preprocessor_pipeline=state.fitted_scaler,
+                feature_selector_pipeline=fs_results['pipeline']
             )
             state.evaluation = evaluation
             
-        # Step 7: Deployment Prompt
+        # Step 7: Model Artifact Preservation
+        with PipelineStep("ARTIFACT PRESERVATION", state) as step:
+            save_model_artifacts(state, args)
+            step.log("Joblib targets generated for API mapping.")
+            
+        # Step 8: Deployment Prompt
         prompt_deployment(evaluation, args)
 
-        # Step 8: PDF Report Generation
+        # Step 9: PDF Report Generation
         run_reporter(state, args)
         
         # Conclude

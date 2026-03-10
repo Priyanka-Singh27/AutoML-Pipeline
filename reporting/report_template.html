@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>AutoML Report</title>
+    <style>
+        body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; margin: 40px; color: #333; line-height: 1.6; }
+        h1, h2, h3 { color: #2C3E50; border-bottom: 2px solid #eee; padding-bottom: 5px; }
+        .section { margin-bottom: 30px; }
+        .metric-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .metric-table th, .metric-table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        .metric-table th { background-color: #F8F9FA; font-weight: bold; }
+        .highlight { background-color: #E6F2FF; font-weight: bold; }
+        .plot-container { text-align: center; margin: 20px 0; }
+        .plot-container img { max-width: 90%; height: auto; border: 1px solid #ccc; padding: 5px; box-shadow: 2px 2px 8px rgba(0,0,0,0.1); }
+        .limitations-list { background: #FFF3CD; border-left: 5px solid #FFECB5; padding: 15px 25px; margin: 15px 0; }
+        .limitations-list li { margin-bottom: 8px; }
+        .footer { font-size: 11px; text-align: center; color: #777; border-top: 1px solid #eee; padding-top: 20px; margin-top: 50px; }
+    </style>
+</head>
+<body>
+
+    <div class="header section">
+        <h1>AutoML Execution Report</h1>
+        <p><strong>Dataset:</strong> {{ args.file }}</p>
+        <p><strong>Target:</strong> {{ args.target if args.target else 'Unsupervised' }}</p>
+        <p><strong>Generated At:</strong> {{ timestamp }}</p>
+    </div>
+
+    <!-- TARGET DETECTION SUMMARY -->
+    <div class="section">
+        <h2>1. Target Detection</h2>
+        <p>Automated statistical analysis inferred the following configuration:</p>
+        <table class="metric-table">
+            <tr><th>Problem Type</th><td>{{ detection.problem_type | upper }}</td></tr>
+            <tr><th>Confidence</th><td>{{ detection.confidence | title }}</td></tr>
+            {% if detection.problem_type == 'classification' %}
+            <tr><th>Subtype</th><td>{{ detection.classification_subtype | title }}</td></tr>
+            <tr><th>Num Classes</th><td>{{ detection.num_classes }}</td></tr>
+            {% elif detection.problem_type == 'regression' %}
+            <tr><th>Subtype</th><td>{{ detection.regression_subtype | title }}</td></tr>
+            {% endif %}
+        </table>
+    </div>
+
+    <!-- DATA AUDIT SUMMARY -->
+    <div class="section">
+        <h2>2. Data Audit Summary</h2>
+        <table class="metric-table">
+            <tr><th>Raw Shape</th><td>{{ audit.shape[0] }} rows, {{ audit.shape[1] }} features</td></tr>
+            <tr><th>Dataset Size Class</th><td>{{ audit.dataset_size_class | title }}</td></tr>
+            <tr><th>Imbalance Detected</th><td>{{ audit.imbalance_detected }}</td></tr>
+        </table>
+    </div>
+
+    <!-- FEATURE SELECTION -->
+    <div class="section">
+        <h2>3. Feature Selection</h2>
+        <p><strong>Original Features:</strong> {{ evaluation.features_original }}</p>
+        <p><strong>Selected Features:</strong> {{ evaluation.features_remaining }}</p>
+        
+        {% set dropped = evaluation.features_dropped %}
+        {% if dropped and dropped | length > 0 %}
+            <p><strong>Dropped Features Breakdown:</strong></p>
+            <ul>
+                {% for reason, count in dropped.items() %}
+                    <li>{{ reason | title }}: {{ count | length }} features heavily degraded model fidelity.</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>All input features were preserved.</p>
+        {% endif %}
+    </div>
+
+    <!-- MODEL COMPETITION -->
+    {% if evaluation.all_trials %}
+    <div class="section">
+        <h2>4. Optuna Trials (Model Competition)</h2>
+        <p>Total time budget: {{ args.time_budget }}s. Total trials executed: {{ evaluation.n_trials }}</p>
+        <table class="metric-table">
+            <tr>
+                <th>Trial</th>
+                <th>Model</th>
+                <th>Validation Score</th>
+                <th>Duration (s)</th>
+            </tr>
+            {% for trial in evaluation.all_trials %}
+            <tr class="{{ 'highlight' if trial.model == evaluation.best_model_name else '' }}">
+                <td>{{ trial.trial }}</td>
+                <td>{{ trial.model }}</td>
+                <td>{{ trial.score | round(4) if trial.score is not none else 'N/A' }}</td>
+                <td>{{ trial.duration | round(2) if trial.duration is not none else 'N/A' }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- EVALUATION RESULTS -->
+    <div class="section">
+        <h2>5. Final Model Evaluation</h2>
+        <p><strong>Best Model:</strong> {{ evaluation.best_model_name }}</p>
+
+        {% if detection.problem_type == 'classification' %}
+            <table class="metric-table">
+                <tr><th>F1-Score (Weighted)</th><td>{{ evaluation.f1_weighted | round(4) if evaluation.f1_weighted is not none else 'N/A' }}</td></tr>
+                <tr><th>ROC-AUC</th><td>{{ evaluation.roc_auc | round(4) if evaluation.roc_auc is not none else 'N/A' }}</td></tr>
+                <tr><th>Precision (Weighted)</th><td>{{ evaluation.precision_weighted | round(4) if evaluation.precision_weighted is not none else 'N/A' }}</td></tr>
+                <tr><th>Recall (Weighted)</th><td>{{ evaluation.recall_weighted | round(4) if evaluation.recall_weighted is not none else 'N/A' }}</td></tr>
+            </table>
+
+            {% if cm_plot %}
+            <div class="plot-container">
+                <h3>Confusion Matrix</h3>
+                <img src="file://{{ cm_plot }}" alt="Confusion Matrix Heatmap" />
+                <p><em>{{ evaluation.confusion_matrix_inference }}</em></p>
+            </div>
+            {% endif %}
+
+        {% elif detection.problem_type == 'regression' %}
+            <table class="metric-table">
+                <tr><th>RMSE</th><td>{{ evaluation.rmse | round(4) if evaluation.rmse is not none else 'N/A' }}</td></tr>
+                <tr><th>MAE</th><td>{{ evaluation.mae | round(4) if evaluation.mae is not none else 'N/A' }}</td></tr>
+                <tr><th>R-Squared (R²)</th><td>{{ evaluation.r2 | round(4) if evaluation.r2 is not none else 'N/A' }}</td></tr>
+            </table>
+            
+            {% if residual_plot %}
+            <div class="plot-container">
+                <h3>Residuals Analysis</h3>
+                <img src="file://{{ residual_plot }}" alt="Residual Plot" />
+                <p>Heteroscedasticity Detected: <strong>{{ 'Yes' if evaluation.heteroscedastic else 'No' }}</strong></p>
+            </div>
+            {% endif %}
+
+        {% elif detection.problem_type == 'clustering' %}
+            <table class="metric-table">
+                <tr><th>Silhouette Score</th><td>{{ evaluation.silhouette_score | round(4) if evaluation.silhouette_score is not none else 'N/A' }}</td></tr>
+                <tr><th>Davies Bouldin</th><td>{{ evaluation.davies_bouldin | round(4) if evaluation.davies_bouldin is not none else 'N/A' }}</td></tr>
+                <tr><th>Detected Clusters</th><td>{{ evaluation.n_clusters_final }}</td></tr>
+            </table>
+            
+            {% if cluster_plot %}
+            <div class="plot-container">
+                <h3>Cluster Visualization (PCA Projection)</h3>
+                <img src="file://{{ cluster_plot }}" alt="Cluster PCA Plot" />
+            </div>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <!-- SHAP EXPLAINABILITY -->
+    {% if shap_plots.summary or shap_plots.waterfall %}
+    <div class="section" style="page-break-before: always;">
+        <h2>6. Global Feature Interpretability (SHAP)</h2>
+        <p>Analyzed via theoretically grounded Shapley Additive Explanations. Models base their predictions heavily on the features shown below.</p>
+        
+        {% if shap_plots.summary %}
+        <div class="plot-container">
+            <h3>Global Feature Importance Over Dataset</h3>
+            <img src="file://{{ shap_plots.summary }}" alt="SHAP Summary Matrix" />
+        </div>
+        {% endif %}
+        
+        {% if shap_plots.waterfall %}
+        <div class="plot-container">
+            <h3>Local Explanation (First Sample Trace)</h3>
+            <img src="file://{{ shap_plots.waterfall }}" alt="SHAP Waterfall Local" />
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- LIMITATIONS -->
+    {% set limitations = evaluation.limitations %}
+    {% if limitations and limitations | length > 0 %}
+    <div class="section">
+        <h2>7. Known Limitations & Caveats</h2>
+        <p>The automated engine generated the following structural warnings regarding this model's deployability in production:</p>
+        <div class="limitations-list">
+            <ul>
+            {% for item in limitations %}
+                <li>{{ item }}</li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="footer">
+        Automated Machine Learning Execution Suite | Artifact: {{ evaluation.model_path | default('Not explicitly persisted.') }}
+    </div>
+
+</body>
+</html>

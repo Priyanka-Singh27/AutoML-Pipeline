@@ -192,105 +192,122 @@ def run_detector(audit, df=None, force_type=None, _auto_input=None):
         detection['detection_method'] = 'user_flag'
         detection['confidence'] = 'high'
         narrate(f"  -> Problem type inferred as: {force_type.capitalize()} (User override)")
-        sanity_check(detection, audit)
-        return detection
+        # Do not return here. Must compute subtypes at the bottom.
 
     # 2. Check for Clustering (No target)
-    if target is None:
+    elif target is None:
         detection['problem_type'] = 'clustering'
         detection['confidence'] = 'high'
         detection['signals']['target_column'] = {'value': None, 'vote': 'clustering', 'weight': 5.0}
         narrate("  -> Problem type inferred as: Clustering (No target column found)")
+        # No subtypes to compute for clustering, return now
         return detection
-
-    # 3. Analyze Statistical Distribution
-    if df is not None and target in df.columns:
-        dist_analysis = analyze_target_distribution(df[target])
-    else:
-        # Fallback if raw dataframe not provided
-        dist_analysis = {'is_normal': False, 'p_normal': 0.0, 'is_integer_valued': (target_dtype in ['int64', 'int32']), 'entropy': 0.0, 'gap_variance': 0.0, 'is_numeric': (target_dtype in ['int64', 'int32', 'float64', 'float32'])}
 
     cls_score = 0.0
     reg_score = 0.0
+    dist_analysis = {'is_normal': False, 'p_normal': 0.0, 'is_integer_valued': (target_dtype in ['int64', 'int32']), 'entropy': 0.0, 'gap_variance': 0.0, 'is_numeric': (target_dtype in ['int64', 'int32', 'float64', 'float32'])}
 
-    # Signal A: Statistical Distribution
-    # Entropy: Low entropy favors classification (concentrated classes). High entropy favors regression.
-    if dist_analysis['entropy'] > 0:
-        if dist_analysis['entropy'] < 1.0:
-            detection['signals']['entropy'] = {'value': dist_analysis['entropy'], 'vote': 'classification', 'weight': 2.0}
-            cls_score += 2.0
-            narrate(f"  -> Signal 1 - Distribution  : Low entropy ({dist_analysis['entropy']:.2f}) -> Classification (+2.0)")
-        elif dist_analysis['entropy'] > 2.5:
-            detection['signals']['entropy'] = {'value': dist_analysis['entropy'], 'vote': 'regression', 'weight': 2.0}
+    # 3. Analyze Statistical Distribution ONLY if no user override
+    if force_type is None:
+        if df is not None and target in df.columns:
+            dist_analysis = analyze_target_distribution(df[target])
+
+        # Signal A: Statistical Distribution
+        # Entropy: Low entropy favors classification (concentrated classes). High entropy favors regression.
+        if dist_analysis['entropy'] > 0:
+            if dist_analysis['entropy'] < 1.0:
+                detection['signals']['entropy'] = {'value': dist_analysis['entropy'], 'vote': 'classification', 'weight': 2.0}
+                cls_score += 2.0
+                narrate(f"  -> Signal 1 - Distribution  : Low entropy ({dist_analysis['entropy']:.2f}) -> Classification (+2.0)")
+            elif dist_analysis['entropy'] > 2.5:
+                detection['signals']['entropy'] = {'value': dist_analysis['entropy'], 'vote': 'regression', 'weight': 2.0}
+                reg_score += 2.0
+                narrate(f"  -> Signal 1 - Distribution  : High entropy ({dist_analysis['entropy']:.2f}) -> Regression (+2.0)")
+
+        # Normality: Normally distributed target almost guarantees regression
+        if dist_analysis['is_normal']:
+            detection['signals']['normality'] = {'value': dist_analysis['p_normal'], 'vote': 'regression', 'weight': 2.5}
+            reg_score += 2.5
+            narrate(f"  -> Signal 2 - Normality     : Normally distributed (p={dist_analysis['p_normal']:.3f}) -> Regression (+2.5)")
+
+        # Gap Variance: Regular spacing = classification ordinal. Irregular spacing = continuous regression.
+        # We only apply this safely if there are some gaps to measure.
+        if dist_analysis['is_numeric'] and n_unique > 2:
+            if dist_analysis['gap_variance'] < 0.1:
+                detection['signals']['gap_variance'] = {'value': dist_analysis['gap_variance'], 'vote': 'classification', 'weight': 1.0}
+                cls_score += 1.0
+                narrate(f"  -> Signal 3 - Gap variance  : Small/regular gaps ({dist_analysis['gap_variance']:.2f}) -> Classification (+1.0)")
+            elif dist_analysis['gap_variance'] > 5.0:
+                detection['signals']['gap_variance'] = {'value': dist_analysis['gap_variance'], 'vote': 'regression', 'weight': 1.0}
+                reg_score += 1.0
+                narrate(f"  -> Signal 3 - Gap variance  : Large/irregular gaps ({dist_analysis['gap_variance']:.2f}) -> Regression (+1.0)")
+
+        # Signal B: Dtype + Unique Values combo
+        if target_dtype in ['object', 'category', 'bool', 'string']:
+            # Pure categorical
+            detection['signals']['dtype'] = {'value': target_dtype, 'vote': 'classification', 'weight': 3.0}
+            cls_score += 3.0
+            narrate(f"  -> Signal 4 - Target Dtype  : Categorical/String -> Classification (+3.0)")
+        elif target_dtype in ['float64', 'float32'] and not dist_analysis['is_integer_valued']:
+            # Continuous Float
+            detection['signals']['dtype'] = {'value': target_dtype, 'vote': 'regression', 'weight': 3.0}
+            reg_score += 3.0
+            narrate(f"  -> Signal 4 - Target Dtype  : Continuous Float -> Regression (+3.0)")
+
+        if n_unique <= 2:
+            detection['signals']['unique_vals'] = {'value': n_unique, 'vote': 'classification', 'weight': 4.0}
+            cls_score += 4.0
+            narrate(f"  -> Signal 5 - Unique Values : Binary (2 unique) -> Classification (+4.0)")
+        elif n_unique <= 5:
+            detection['signals']['unique_vals'] = {'value': n_unique, 'vote': 'classification', 'weight': 2.5}
+            cls_score += 2.5
+            narrate(f"  -> Signal 5 - Unique Values : Low cardinality ({n_unique} unique) -> Classification (+2.5)")
+        elif n_unique > 50 and dist_analysis['is_numeric']:
+            detection['signals']['unique_vals'] = {'value': n_unique, 'vote': 'regression', 'weight': 2.0}
             reg_score += 2.0
-            narrate(f"  -> Signal 1 - Distribution  : High entropy ({dist_analysis['entropy']:.2f}) -> Regression (+2.0)")
+            narrate(f"  -> Signal 5 - Unique Values : High cardinality numeric ({n_unique} unique) -> Regression (+2.0)")
 
-    # Normality: Normally distributed target almost guarantees regression
-    if dist_analysis['is_normal']:
-        detection['signals']['normality'] = {'value': dist_analysis['p_normal'], 'vote': 'regression', 'weight': 2.5}
-        reg_score += 2.5
-        narrate(f"  -> Signal 2 - Normality     : Normally distributed (p={dist_analysis['p_normal']:.3f}) -> Regression (+2.5)")
-
-    # Gap Variance: Regular spacing = classification ordinal. Irregular spacing = continuous regression.
-    # We only apply this safely if there are some gaps to measure.
-    if dist_analysis['is_numeric'] and n_unique > 2:
-        if dist_analysis['gap_variance'] < 0.1:
-            detection['signals']['gap_variance'] = {'value': dist_analysis['gap_variance'], 'vote': 'classification', 'weight': 1.0}
-            cls_score += 1.0
-            narrate(f"  -> Signal 3 - Gap variance  : Small/regular gaps ({dist_analysis['gap_variance']:.2f}) -> Classification (+1.0)")
-        elif dist_analysis['gap_variance'] > 5.0:
-            detection['signals']['gap_variance'] = {'value': dist_analysis['gap_variance'], 'vote': 'regression', 'weight': 1.0}
-            reg_score += 1.0
-            narrate(f"  -> Signal 3 - Gap variance  : Large/irregular gaps ({dist_analysis['gap_variance']:.2f}) -> Regression (+1.0)")
-
-    # Signal B: Dtype + Unique Values combo
-    if target_dtype in ['object', 'category', 'bool', 'string']:
-        # Pure categorical
-        detection['signals']['dtype'] = {'value': target_dtype, 'vote': 'classification', 'weight': 3.0}
-        cls_score += 3.0
-        narrate(f"  -> Signal 4 - Target Dtype  : {target_dtype} -> Classification (+3.0)")
-    elif target_dtype in ['float64', 'float32'] and not dist_analysis['is_integer_valued']:
-        # Pure continuous float
-        detection['signals']['dtype'] = {'value': target_dtype, 'vote': 'regression', 'weight': 3.0}
-        reg_score += 3.0
-        narrate(f"  -> Signal 4 - Target Dtype  : {target_dtype} (Continuous) -> Regression (+3.0)")
-    else:
-        # Integer or Float-acting-as-integer
-        if n_unique <= 10:
-            detection['signals']['dtype'] = {'value': target_dtype, 'vote': 'classification', 'weight': 2.0}
-            cls_score += 2.0
-            narrate(f"  -> Signal 4 - Target Dtype  : {target_dtype} (Low cardinality: {n_unique}) -> Classification (+2.0)")
-        elif n_unique > 100:
-            detection['signals']['dtype'] = {'value': target_dtype, 'vote': 'regression', 'weight': 2.0}
-            reg_score += 2.0
-            narrate(f"  -> Signal 4 - Target Dtype  : {target_dtype} (High cardinality: {n_unique}) -> Regression (+2.0)")
+        # Final Decision Output
+        if cls_score > reg_score:
+            detection['problem_type'] = 'classification'
+        elif reg_score > cls_score:
+            detection['problem_type'] = 'regression'
         else:
-            # Grey zone for dtype
-            narrate(f"  -> Signal 4 - Target Dtype  : {target_dtype} ({n_unique} unique) -> Ambiguous (+0.0)")
+            if is_genuinely_ambiguous(n_unique, target_dtype, dist_analysis):
+                # We need user input if it's perfectly tied and ambiguous
+                if _auto_input:
+                    # For testing
+                    choice = _auto_input
+                    narrate("  -> Tie-breaker required: Simulating user choice.")
+                else:
+                    narrate("\n  [!] AMBIGUOUS TARGET DETECTED")
+                    narrate(f"      Target: '{target}' | Dtype: {target_dtype} | Unique Values: {n_unique}")
+                    narrate(f"      Distribution: {'Normal' if dist_analysis['is_normal'] else 'Skewed'}, "
+                            f"Entropy: {dist_analysis['entropy']:.2f}")
+                    narrate("      Would you like to model this as Classification or Regression?")
+                    narrate("      (1) Classification (predict exactly one of these integer values)")
+                    narrate("      (2) Regression (predict continuous floats predicting the pattern)")
+                    while True:
+                        choice = input("      Enter 1 or 2: ").strip()
+                        if choice in ['1', '2']:
+                            break
+                        print("Invalid input. Enter 1 or 2.")
+                        
+                if choice == '1':
+                    detection['problem_type'] = 'classification'
+                else:
+                    detection['problem_type'] = 'regression'
+            else:
+                # Default tie break to classification if few classes, regression if many
+                detection['problem_type'] = 'classification' if n_unique <= 10 else 'regression'
 
-    # Signal C: Column name heuristics
-    target_lower = target.lower()
-    class_keywords = ['is_', 'has_', 'was_', 'category', 'class', 'label', 'type', 'status', 'churn', 'fraud', 'survived', 'diagnosis', 'default', 'outcome', 'flag']
-    reg_keywords = ['price', 'cost', 'revenue', 'amount', 'score', 'rate', 'value', 'age', 'count', 'quantity', 'duration', 'temperature', 'salary', 'weight', 'height']
-    
-    if any(p in target_lower for p in class_keywords):
-        detection['signals']['name_heuristic'] = {'value': target, 'vote': 'classification', 'weight': 1.0}
-        cls_score += 1.0
-        narrate(f"  -> Signal 5 - Name heuristic: '{target}' matches discrete keywords -> Classification (+1.0)")
-    elif any(p in target_lower for p in reg_keywords):
-        detection['signals']['name_heuristic'] = {'value': target, 'vote': 'regression', 'weight': 1.0}
-        reg_score += 1.0
-        narrate(f"  -> Signal 5 - Name heuristic: '{target}' matches continuous keywords -> Regression (+1.0)")
-
-    # Signal D: Feature types (Multivariate signal)
-    vote, weight = feature_type_signal(audit)
-    if weight > 0:
-        if vote == 'classification':
-            cls_score += weight
+        # Calculate discrete confidence metric
+        total_score = cls_score + reg_score
+        if total_score > 0:
+            confidence_ratio = max(cls_score, reg_score) / total_score
+            detection['confidence'] = 'high' if confidence_ratio >= 0.75 else ('medium' if confidence_ratio >= 0.6 else 'low')
         else:
-            reg_score += weight
-        detection['signals']['feature_types'] = {'value': vote, 'vote': vote, 'weight': weight}
-        narrate(f"  -> Signal 6 - Feature types : Majority {vote} -> {vote.capitalize()} (+{weight})")
+            detection['confidence'] = 'low'
 
     narrate(f"  -> Total Classification score : {cls_score}")
     narrate(f"  -> Total Regression score     : {reg_score}")
