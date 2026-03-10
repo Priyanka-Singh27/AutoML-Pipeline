@@ -46,17 +46,20 @@ def _compute_scale_pos_weight(y):
             return float(maj_count / min_count)
     return None
 
-def _get_time_callback(time_budget, start_time):
-    """Returns a callback tracking time and narrating progression."""
+_budget_warning_shown = False
+
+def _build_narrator(time_budget: int, start_time: float):
+    # Only called from primary orchestrator loop, not multiprocessed workers.
     def narration_callback(study, trial):
+        global _budget_warning_shown
         elapsed = time.time() - start_time
-        remaining = max(0, time_budget - elapsed)
+        remaining = time_budget - elapsed
         
-        is_best = False
         try:
-            if study.best_value is not None:
-                is_best = (trial.value == study.best_value)
+            is_best = trial.value == study.best_value
         except ValueError:
+            is_best = False
+        except Exception:
             pass # No best value yet / failed trials
             
         marker = "  <- new best" if is_best else ""
@@ -70,8 +73,9 @@ def _get_time_callback(time_budget, start_time):
               f"Score={score_val:.4f} | "
               f"[{duration:.1f}s] | ~{remaining:.0f}s remaining{marker}")
         
-        if 0 < remaining < 15:
+        if 0 < remaining < 15 and not _budget_warning_shown:
             narrate(f"  -> Time budget nearly exhausted — wrapping up...")
+            _budget_warning_shown = True
             
     return narration_callback
 
@@ -407,7 +411,7 @@ def run_optuna_study(X, y, detection, audit, time_budget=120, random_state=42, _
             objective, 
             timeout=time_budget, 
             n_jobs=1,
-            callbacks=[_get_time_callback(time_budget, start_time)]
+            callbacks=[_build_narrator(time_budget, start_time)]
         )
     except Exception as e:
         narrate(f"  [!] Study execution failed structurally: {e}")

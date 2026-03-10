@@ -208,6 +208,18 @@ def execute_pipeline(args: PipelineArgs):
     """
     The central intelligence loop running the actual ML Engine.
     """
+    if args.report in ('pdf', 'both'):
+        try:
+            import weasyprint
+        except (ImportError, OSError):
+            narrate("  [!] weasyprint is not installed. PDF generation aborted.")
+            raise PipelineStepError(
+                "REPORT SETUP",
+                "weasyprint is not installed. "
+                "Install it with: pip install weasyprint "
+                "Or run with --report terminal to skip PDF generation."
+            )
+
     setup_output_dirs()
     
     state = PipelineState(

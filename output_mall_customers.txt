@@ -1,0 +1,41 @@
+
+-----
+
+WeasyPrint could not import some external libraries. Please carefully follow the installation steps before reporting an issue:
+https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#installation
+https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#troubleshooting 
+
+-----
+
+===========================================
+ AUTO-ML PIPELINE INITIATED
+===========================================
+Dataset      : data/mall_customers.csv
+Random State : 42
+Time Budget  : 120s
+
+[FILE VALIDATION]
+  -> Loading dataset: data/mall_customers.csv
+  -> Shape: 200 rows, 5 columns
+  [+] [FILE VALIDATION] completed in 0.00s
+
+[DATA AUDIT]
+
+[DATA AUDIT]
+  -> Profiling 200 rows and 5 columns
+  [!] 'CustomerID' looks like an ID column (Drop candidate)
+  -> Found 4 numeric, 1 categorical features.
+  -> Audit complete.
+  [+] [DATA AUDIT] completed in 0.02s
+
+[TARGET DETECTION]
+
+[DETECTION]
+  -> Problem type inferred as: Clustering (User override)
+  -> Total Classification score : 0.0
+  -> Total Regression score     : 0.0
+  [!] [FAIL] [TARGET DETECTION] failed after 0.00s
+
+[PIPELINE ABORTED] Pipeline failed at step '[TARGET DETECTION]'
+Reason: '<=' not supported between instances of 'NoneType' and 'int'
+Run with --debug flag to see full traceback.

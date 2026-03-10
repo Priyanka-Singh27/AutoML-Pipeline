@@ -1,0 +1,938 @@
+
+-----
+
+WeasyPrint could not import some external libraries. Please carefully follow the installation steps before reporting an issue:
+https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#installation
+https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#troubleshooting 
+
+-----
+
+===========================================
+ AUTO-ML PIPELINE INITIATED
+===========================================
+Dataset      : data/titanic.csv
+Random State : 42
+Time Budget  : 120s
+
+[FILE VALIDATION]
+  -> Loading dataset: data/titanic.csv
+  -> Shape: 891 rows, 12 columns
+  [+] [FILE VALIDATION] completed in 0.01s
+
+[DATA AUDIT]
+
+[DATA AUDIT]
+  -> Profiling 891 rows and 12 columns
+  [!] 'PassengerId' looks like an ID column (Drop candidate)
+  [!] 'Name' looks like an ID column (Drop candidate)
+  -> Found 6 numeric, 5 categorical features.
+  -> Audit complete.
+  [+] [DATA AUDIT] completed in 0.08s
+
+[TARGET DETECTION]
+
+[DETECTION]
+  -> Signal 1 - Distribution  : Low entropy (0.67) -> Classification (+2.0)
+  -> Signal 5 - Unique Values : Binary (2 unique) -> Classification (+4.0)
+  -> Total Classification score : 6.0
+  -> Total Regression score     : 0.0
+  -> Problem type finalized as: Classification (high confidence)
+
+  [+] [TARGET DETECTION] completed in 0.00s
+
+PREPROCESSING
+
+[PREPROCESSING]
+  -> Dropping structural pathologies: ['PassengerId', 'Name']
+  -> 'Parch': outliers capped at [0.00, 4.00]
+  -> 'Fare': outliers capped at [0.00, 249.01]
+  -> 'SibSp': log transform applied (skew=3.69)
+  -> 'Parch': log transform applied (skew=2.74)
+  -> 'Fare': log transform applied (skew=4.78)
+  -> 'Ticket': grouped 681 rare categories (<1%) into '__other__'
+  -> 'Cabin': grouped 139 rare categories (<1%) into '__other__'
+  -> Mapping 5 numerical features (StandardScaler)
+  -> 'Sex' (2 unique) : OneHotEncoder
+  -> 'Ticket' (1 unique) : OneHotEncoder
+  -> 'Cabin' (9 unique) : OneHotEncoder
+  -> 'Embarked' (3 unique) : OneHotEncoder
+  -> Fitting Scikit-Learn Processor...
+  [+] Preprocessing Complete: 21 resulting dimensions.
+  -> Preprocessed shape: 891 rows, 21 columns
+  [+] PREPROCESSING completed in 0.12s
+
+[FEATURE SELECTION]
+
+[FEATURE SELECTION]
+  -> Level 1 | Dropping 9 low variance columns: ['Ticket___other__', 'Cabin_B96 B98', 'Cabin_C22 C26', 'Cabin_C23 C25 C27', 'Cabin_D', 'Cabin_E101', 'Cabin_F2', 'Cabin_F33', 'Cabin_G6']
+  -> Level 2 | Calculating Consensus Importance (3 seeds)
+  -> Level 4 | Dropping 2 weak features (SHAP < 1% of top): ['Cabin___other__', 'Embarked_Q']
+  -> Features remaining: 9 / 20
+  -> Level 5 | Post-Selection Validation (3-Fold CV)
+  -> Validation: F1 remained stable (0.8244 -> 0.8230)
+  [+] [FEATURE SELECTION] completed in 7.70s
+
+[OPTUNA TUNING]
+
+[OPTUNA TUNING]
+  Trial   0 | xgboost              | Score=0.8078 | [1.1s] | ~119s remaining  <- new best
+  Trial   1 | xgboost              | Score=0.7957 | [0.7s] | ~118s remaining
+  Trial   2 | lightgbm             | Score=0.8193 | [0.2s] | ~118s remaining  <- new best
+  Trial   3 | svc                  | Score=0.8140 | [0.1s] | ~118s remaining
+  Trial   4 | lightgbm             | Score=0.7679 | [0.2s] | ~118s remaining
+  Trial   5 | xgboost              | Score=0.8234 | [1.6s] | ~116s remaining  <- new best
+  Trial   6 | xgboost              | Score=0.8261 | [0.1s] | ~116s remaining
+  Trial   7 | logistic_regression  | Score=0.7836 | [0.0s] | ~116s remaining
+  Trial   8 | logistic_regression  | Score=0.7836 | [0.0s] | ~116s remaining
+  Trial   9 | svc                  | Score=0.8206 | [0.1s] | ~116s remaining
+  Trial  10 | random_forest        | Score=0.8101 | [0.1s] | ~116s remaining
+  Trial  11 | svc                  | Score=0.6982 | [0.0s] | ~116s remaining
+  Trial  12 | svc                  | Score=0.8186 | [0.1s] | ~116s remaining
+  Trial  13 | random_forest        | Score=0.8175 | [0.6s] | ~115s remaining
+  Trial  14 | svc                  | Score=0.4689 | [0.0s] | ~115s remaining
+  Trial  15 | xgboost              | Score=0.8309 | [0.3s] | ~115s remaining
+  Trial  16 | xgboost              | Score=0.8093 | [0.3s] | ~114s remaining
+  Trial  17 | svc                  | Score=0.8162 | [0.1s] | ~114s remaining
+  Trial  18 | lightgbm             | Score=0.8093 | [0.2s] | ~114s remaining
+  Trial  19 | logistic_regression  | Score=0.4689 | [0.0s] | ~114s remaining
+  Trial  20 | random_forest        | Score=0.8143 | [1.8s] | ~112s remaining
+  Trial  21 | lightgbm             | Score=0.8100 | [0.1s] | ~112s remaining
+  Trial  22 | lightgbm             | Score=0.8022 | [0.0s] | ~112s remaining
+  Trial  23 | lightgbm             | Score=0.8152 | [0.2s] | ~112s remaining
+  Trial  24 | lightgbm             | Score=0.7952 | [0.0s] | ~112s remaining
+  Trial  25 | svc                  | Score=0.6323 | [0.0s] | ~112s remaining
+  Trial  26 | xgboost              | Score=0.4689 | [0.1s] | ~112s remaining
+  Trial  27 | lightgbm             | Score=0.8301 | [0.2s] | ~112s remaining
+  Trial  28 | xgboost              | Score=0.8309 | [0.2s] | ~111s remaining
+  Trial  29 | svc                  | Score=0.8359 | [0.0s] | ~111s remaining
+  Trial  30 | xgboost              | Score=0.8234 | [0.2s] | ~111s remaining
+  Trial  31 | svc                  | Score=0.8202 | [0.1s] | ~111s remaining
+  Trial  32 | svc                  | Score=0.8202 | [0.1s] | ~111s remaining
+  Trial  33 | svc                  | Score=0.8188 | [0.1s] | ~111s remaining
+  Trial  34 | svc                  | Score=0.8200 | [0.1s] | ~111s remaining
+  Trial  35 | svc                  | Score=0.8234 | [0.0s] | ~111s remaining
+  Trial  36 | svc                  | Score=0.8223 | [0.1s] | ~111s remaining
+  Trial  37 | svc                  | Score=0.8168 | [0.1s] | ~111s remaining
+  Trial  38 | svc                  | Score=0.8223 | [0.1s] | ~111s remaining
+  Trial  39 | logistic_regression  | Score=0.4689 | [0.0s] | ~111s remaining
+  Trial  40 | xgboost              | Score=0.8368 | [0.2s] | ~111s remaining
+  Trial  41 | svc                  | Score=0.8208 | [0.1s] | ~110s remaining
+  Trial  42 | svc                  | Score=0.8223 | [0.1s] | ~110s remaining
+  Trial  43 | svc                  | Score=0.8210 | [0.1s] | ~110s remaining
+  Trial  44 | svc                  | Score=0.8170 | [0.1s] | ~110s remaining
+  Trial  45 | svc                  | Score=0.8186 | [0.1s] | ~110s remaining
+  Trial  46 | random_forest        | Score=0.8242 | [0.6s] | ~110s remaining
+  Trial  47 | svc                  | Score=0.8210 | [0.1s] | ~109s remaining
+  Trial  48 | logistic_regression  | Score=0.7682 | [0.0s] | ~109s remaining
+  Trial  49 | svc                  | Score=0.8154 | [0.1s] | ~109s remaining
+  Trial  50 | xgboost              | Score=0.8139 | [0.2s] | ~109s remaining
+  Trial  51 | svc                  | Score=0.8208 | [0.1s] | ~109s remaining
+  Trial  52 | svc                  | Score=0.8180 | [0.1s] | ~109s remaining
+  Trial  53 | svc                  | Score=0.8443 | [0.0s] | ~109s remaining
+  Trial  54 | svc                  | Score=0.8309 | [0.0s] | ~109s remaining
+  Trial  55 | random_forest        | Score=0.8242 | [0.1s] | ~109s remaining
+  Trial  56 | svc                  | Score=0.8229 | [0.1s] | ~109s remaining
+  Trial  57 | svc                  | Score=0.8187 | [0.1s] | ~109s remaining
+  Trial  58 | xgboost              | Score=0.8194 | [0.4s] | ~108s remaining
+  Trial  59 | svc                  | Score=0.8359 | [0.0s] | ~108s remaining
+  Trial  60 | svc                  | Score=0.8200 | [0.1s] | ~108s remaining
+  Trial  61 | svc                  | Score=0.8208 | [0.1s] | ~108s remaining
+  Trial  62 | svc                  | Score=0.8197 | [0.1s] | ~108s remaining
+  Trial  63 | svc                  | Score=0.8359 | [0.0s] | ~108s remaining
+  Trial  64 | logistic_regression  | Score=0.7601 | [0.0s] | ~108s remaining
+  Trial  65 | svc                  | Score=0.8309 | [0.0s] | ~108s remaining
+  Trial  66 | xgboost              | Score=0.8088 | [0.2s] | ~108s remaining
+  Trial  67 | random_forest        | Score=0.8376 | [0.4s] | ~107s remaining
+  Trial  68 | svc                  | Score=0.8197 | [0.1s] | ~107s remaining
+  Trial  69 | svc                  | Score=0.8200 | [0.1s] | ~107s remaining
+  Trial  70 | svc                  | Score=0.8138 | [0.1s] | ~107s remaining
+  Trial  71 | svc                  | Score=0.8208 | [0.1s] | ~107s remaining
+  Trial  72 | svc                  | Score=0.8223 | [0.1s] | ~107s remaining
+  Trial  73 | svc                  | Score=0.4689 | [0.0s] | ~107s remaining
+  Trial  74 | svc                  | Score=0.8450 | [0.0s] | ~107s remaining
+  Trial  75 | xgboost              | Score=0.8309 | [0.2s] | ~107s remaining
+  Trial  76 | lightgbm             | Score=0.8018 | [0.1s] | ~107s remaining
+  Trial  77 | svc                  | Score=0.8170 | [0.1s] | ~107s remaining
+  Trial  78 | svc                  | Score=0.8359 | [0.0s] | ~107s remaining
+  Trial  79 | logistic_regression  | Score=0.7836 | [0.0s] | ~107s remaining
+  Trial  80 | svc                  | Score=0.8383 | [0.0s] | ~107s remaining
+  Trial  81 | svc                  | Score=0.8180 | [0.1s] | ~106s remaining
+  Trial  82 | svc                  | Score=0.8223 | [0.1s] | ~106s remaining
+  Trial  83 | svc                  | Score=0.8383 | [0.0s] | ~106s remaining
+  Trial  84 | svc                  | Score=0.8168 | [0.1s] | ~106s remaining
+  Trial  85 | xgboost              | Score=0.8159 | [0.2s] | ~106s remaining
+  Trial  86 | svc                  | Score=0.8210 | [0.1s] | ~106s remaining
+  Trial  87 | svc                  | Score=0.4689 | [0.0s] | ~106s remaining
+  Trial  88 | random_forest        | Score=0.8175 | [0.3s] | ~106s remaining
+  Trial  89 | svc                  | Score=0.8450 | [0.0s] | ~106s remaining
+  Trial  90 | lightgbm             | Score=0.7952 | [0.1s] | ~105s remaining
+  Trial  91 | svc                  | Score=0.8210 | [0.1s] | ~105s remaining
+  Trial  92 | svc                  | Score=0.8383 | [0.0s] | ~105s remaining
+  Trial  93 | svc                  | Score=0.8168 | [0.1s] | ~105s remaining
+  Trial  94 | svc                  | Score=0.8210 | [0.1s] | ~105s remaining
+  Trial  95 | svc                  | Score=0.8450 | [0.0s] | ~105s remaining
+  Trial  96 | svc                  | Score=0.8182 | [0.1s] | ~105s remaining
+  Trial  97 | xgboost              | Score=0.8359 | [0.2s] | ~105s remaining
+  Trial  98 | svc                  | Score=0.8443 | [0.0s] | ~105s remaining
+  Trial  99 | svc                  | Score=0.8383 | [0.0s] | ~105s remaining
+  Trial 100 | logistic_regression  | Score=0.7836 | [0.0s] | ~105s remaining
+  Trial 101 | svc                  | Score=0.8210 | [0.1s] | ~105s remaining
+  Trial 102 | svc                  | Score=0.8210 | [0.1s] | ~105s remaining
+  Trial 103 | svc                  | Score=0.8359 | [0.0s] | ~105s remaining
+  Trial 104 | svc                  | Score=0.8450 | [0.0s] | ~105s remaining
+  Trial 105 | svc                  | Score=0.8223 | [0.1s] | ~105s remaining
+  Trial 106 | svc                  | Score=0.8450 | [0.0s] | ~105s remaining
+  Trial 107 | xgboost              | Score=0.8376 | [0.3s] | ~104s remaining
+  Trial 108 | svc                  | Score=0.8208 | [0.1s] | ~104s remaining
+  Trial 109 | random_forest        | Score=0.8376 | [0.5s] | ~104s remaining
+  Trial 110 | svc                  | Score=0.8168 | [0.1s] | ~104s remaining
+  Trial 111 | svc                  | Score=0.8210 | [0.1s] | ~104s remaining
+  Trial 112 | svc                  | Score=0.8443 | [0.0s] | ~104s remaining
+  Trial 113 | svc                  | Score=0.8223 | [0.1s] | ~103s remaining
+  Trial 114 | svc                  | Score=0.8178 | [0.1s] | ~103s remaining
+  Trial 115 | svc                  | Score=0.8450 | [0.0s] | ~103s remaining
+  Trial 116 | svc                  | Score=0.8383 | [0.0s] | ~103s remaining
+  Trial 117 | lightgbm             | Score=0.8182 | [0.2s] | ~103s remaining
+  Trial 118 | svc                  | Score=0.8168 | [0.1s] | ~103s remaining
+  Trial 119 | svc                  | Score=0.8208 | [0.1s] | ~103s remaining
+  Trial 120 | xgboost              | Score=0.7971 | [0.2s] | ~103s remaining
+  Trial 121 | svc                  | Score=0.8210 | [0.1s] | ~103s remaining
+  Trial 122 | svc                  | Score=0.8210 | [0.1s] | ~103s remaining
+  Trial 123 | svc                  | Score=0.8450 | [0.0s] | ~103s remaining
+  Trial 124 | svc                  | Score=0.8170 | [0.1s] | ~103s remaining
+  Trial 125 | svc                  | Score=0.8359 | [0.0s] | ~102s remaining
+  Trial 126 | svc                  | Score=0.8182 | [0.1s] | ~102s remaining
+  Trial 127 | logistic_regression  | Score=0.4846 | [0.0s] | ~102s remaining
+  Trial 128 | svc                  | Score=0.7746 | [0.0s] | ~102s remaining
+  Trial 129 | svc                  | Score=0.8383 | [0.0s] | ~102s remaining
+  Trial 130 | svc                  | Score=0.8208 | [0.1s] | ~102s remaining
+  Trial 131 | svc                  | Score=0.8223 | [0.1s] | ~102s remaining
+  Trial 132 | svc                  | Score=0.8450 | [0.0s] | ~102s remaining
+  Trial 133 | svc                  | Score=0.8180 | [0.1s] | ~102s remaining
+  Trial 134 | svc                  | Score=0.8168 | [0.1s] | ~102s remaining
+  Trial 135 | svc                  | Score=0.4689 | [0.0s] | ~102s remaining
+  Trial 136 | xgboost              | Score=0.8368 | [0.3s] | ~102s remaining
+  Trial 137 | svc                  | Score=0.8197 | [0.1s] | ~102s remaining
+  Trial 138 | random_forest        | Score=0.8376 | [0.3s] | ~101s remaining
+  Trial 139 | svc                  | Score=0.8223 | [0.1s] | ~101s remaining
+  Trial 140 | svc                  | Score=0.8223 | [0.1s] | ~101s remaining
+  Trial 141 | svc                  | Score=0.8208 | [0.1s] | ~101s remaining
+  Trial 142 | svc                  | Score=0.8450 | [0.0s] | ~101s remaining
+  Trial 143 | svc                  | Score=0.8223 | [0.1s] | ~101s remaining
+  Trial 144 | svc                  | Score=0.8227 | [0.1s] | ~101s remaining
+  Trial 145 | svc                  | Score=0.8178 | [0.1s] | ~101s remaining
+  Trial 146 | svc                  | Score=0.8450 | [0.0s] | ~101s remaining
+  Trial 147 | svc                  | Score=0.8168 | [0.1s] | ~101s remaining
+  Trial 148 | svc                  | Score=0.8170 | [0.1s] | ~101s remaining
+  Trial 149 | svc                  | Score=0.8223 | [0.1s] | ~101s remaining
+  Trial 150 | lightgbm             | Score=0.8093 | [0.2s] | ~100s remaining
+  Trial 151 | svc                  | Score=0.8223 | [0.1s] | ~100s remaining
+  Trial 152 | svc                  | Score=0.8223 | [0.1s] | ~100s remaining
+  Trial 153 | svc                  | Score=0.8211 | [0.1s] | ~100s remaining
+  Trial 154 | svc                  | Score=0.8450 | [0.0s] | ~100s remaining
+  Trial 155 | svc                  | Score=0.8383 | [0.0s] | ~100s remaining
+  Trial 156 | xgboost              | Score=0.7597 | [0.0s] | ~100s remaining
+  Trial 157 | svc                  | Score=0.8223 | [0.1s] | ~100s remaining
+  Trial 158 | svc                  | Score=0.8197 | [0.1s] | ~100s remaining
+  Trial 159 | svc                  | Score=0.8180 | [0.1s] | ~100s remaining
+  Trial 160 | svc                  | Score=0.8450 | [0.0s] | ~100s remaining
+  Trial 161 | svc                  | Score=0.8223 | [0.1s] | ~100s remaining
+  Trial 162 | svc                  | Score=0.8223 | [0.1s] | ~100s remaining
+  Trial 163 | svc                  | Score=0.8197 | [0.1s] | ~100s remaining
+  Trial 164 | logistic_regression  | Score=0.7836 | [0.0s] | ~100s remaining
+  Trial 165 | svc                  | Score=0.8168 | [0.1s] | ~99s remaining
+  Trial 166 | svc                  | Score=0.4689 | [0.0s] | ~99s remaining
+  Trial 167 | svc                  | Score=0.8178 | [0.1s] | ~99s remaining
+  Trial 168 | svc                  | Score=0.8223 | [0.1s] | ~99s remaining
+  Trial 169 | svc                  | Score=0.8443 | [0.0s] | ~99s remaining
+  Trial 170 | random_forest        | Score=0.8309 | [0.2s] | ~99s remaining
+  Trial 171 | svc                  | Score=0.8223 | [0.1s] | ~99s remaining
+  Trial 172 | svc                  | Score=0.8210 | [0.1s] | ~99s remaining
+  Trial 173 | svc                  | Score=0.8168 | [0.1s] | ~99s remaining
+  Trial 174 | svc                  | Score=0.8450 | [0.0s] | ~99s remaining
+  Trial 175 | svc                  | Score=0.8208 | [0.1s] | ~99s remaining
+  Trial 176 | xgboost              | Score=0.8309 | [0.1s] | ~99s remaining
+  Trial 177 | svc                  | Score=0.8210 | [0.1s] | ~98s remaining
+  Trial 178 | svc                  | Score=0.8450 | [0.0s] | ~98s remaining
+  Trial 179 | lightgbm             | Score=0.8159 | [0.1s] | ~98s remaining
+  Trial 180 | svc                  | Score=0.8183 | [0.1s] | ~98s remaining
+  Trial 181 | svc                  | Score=0.8208 | [0.1s] | ~98s remaining
+  Trial 182 | svc                  | Score=0.8223 | [0.1s] | ~98s remaining
+  Trial 183 | svc                  | Score=0.8180 | [0.1s] | ~98s remaining
+  Trial 184 | svc                  | Score=0.8210 | [0.1s] | ~98s remaining
+  Trial 185 | svc                  | Score=0.8450 | [0.0s] | ~98s remaining
+  Trial 186 | svc                  | Score=0.8208 | [0.1s] | ~98s remaining
+  Trial 187 | svc                  | Score=0.8154 | [0.1s] | ~98s remaining
+  Trial 188 | svc                  | Score=0.8196 | [0.1s] | ~98s remaining
+  Trial 189 | svc                  | Score=0.8197 | [0.1s] | ~98s remaining
+  Trial 190 | svc                  | Score=0.8197 | [0.1s] | ~98s remaining
+  Trial 191 | svc                  | Score=0.8210 | [0.1s] | ~97s remaining
+  Trial 192 | svc                  | Score=0.8210 | [0.1s] | ~97s remaining
+  Trial 193 | svc                  | Score=0.8208 | [0.1s] | ~97s remaining
+  Trial 194 | svc                  | Score=0.8170 | [0.1s] | ~97s remaining
+  Trial 195 | xgboost              | Score=0.8383 | [0.3s] | ~97s remaining
+  Trial 196 | svc                  | Score=0.8309 | [0.0s] | ~97s remaining
+  Trial 197 | svc                  | Score=0.8450 | [0.0s] | ~97s remaining
+  Trial 198 | logistic_regression  | Score=0.5704 | [0.0s] | ~97s remaining
+  Trial 199 | svc                  | Score=0.8180 | [0.1s] | ~97s remaining
+  Trial 200 | svc                  | Score=0.8210 | [0.1s] | ~97s remaining
+  Trial 201 | svc                  | Score=0.8223 | [0.1s] | ~97s remaining
+  Trial 202 | svc                  | Score=0.8223 | [0.1s] | ~97s remaining
+  Trial 203 | svc                  | Score=0.8208 | [0.1s] | ~97s remaining
+  Trial 204 | svc                  | Score=0.8197 | [0.1s] | ~96s remaining
+  Trial 205 | svc                  | Score=0.8196 | [0.1s] | ~96s remaining
+  Trial 206 | svc                  | Score=0.8168 | [0.1s] | ~96s remaining
+  Trial 207 | svc                  | Score=0.8450 | [0.0s] | ~96s remaining
+  Trial 208 | svc                  | Score=0.8234 | [0.0s] | ~96s remaining
+  Trial 209 | random_forest        | Score=0.8309 | [0.7s] | ~95s remaining
+  Trial 210 | svc                  | Score=0.8210 | [0.1s] | ~95s remaining
+  Trial 211 | svc                  | Score=0.8208 | [0.1s] | ~95s remaining
+  Trial 212 | svc                  | Score=0.8223 | [0.1s] | ~95s remaining
+  Trial 213 | svc                  | Score=0.8180 | [0.1s] | ~95s remaining
+  Trial 214 | svc                  | Score=0.8197 | [0.1s] | ~95s remaining
+  Trial 215 | svc                  | Score=0.8450 | [0.0s] | ~95s remaining
+  Trial 216 | svc                  | Score=0.8210 | [0.1s] | ~95s remaining
+  Trial 217 | xgboost              | Score=0.8037 | [0.9s] | ~94s remaining
+  Trial 218 | svc                  | Score=0.8223 | [0.1s] | ~94s remaining
+  Trial 219 | svc                  | Score=0.8208 | [0.1s] | ~94s remaining
+  Trial 220 | svc                  | Score=0.8170 | [0.1s] | ~94s remaining
+  Trial 221 | svc                  | Score=0.8223 | [0.1s] | ~93s remaining
+  Trial 222 | svc                  | Score=0.8210 | [0.1s] | ~93s remaining
+  Trial 223 | svc                  | Score=0.8180 | [0.1s] | ~93s remaining
+  Trial 224 | lightgbm             | Score=0.8056 | [0.1s] | ~93s remaining
+  Trial 225 | svc                  | Score=0.8223 | [0.1s] | ~93s remaining
+  Trial 226 | svc                  | Score=0.8450 | [0.0s] | ~93s remaining
+  Trial 227 | svc                  | Score=0.8210 | [0.1s] | ~93s remaining
+  Trial 228 | svc                  | Score=0.8168 | [0.1s] | ~93s remaining
+  Trial 229 | svc                  | Score=0.8208 | [0.1s] | ~93s remaining
+  Trial 230 | svc                  | Score=0.8196 | [0.1s] | ~93s remaining
+  Trial 231 | svc                  | Score=0.8223 | [0.1s] | ~93s remaining
+  Trial 232 | svc                  | Score=0.8223 | [0.1s] | ~93s remaining
+  Trial 233 | svc                  | Score=0.8210 | [0.1s] | ~92s remaining
+  Trial 234 | svc                  | Score=0.8208 | [0.1s] | ~92s remaining
+  Trial 235 | svc                  | Score=0.8210 | [0.1s] | ~92s remaining
+  Trial 236 | svc                  | Score=0.8170 | [0.1s] | ~92s remaining
+  Trial 237 | svc                  | Score=0.8450 | [0.0s] | ~92s remaining
+  Trial 238 | svc                  | Score=0.8223 | [0.1s] | ~92s remaining
+  Trial 239 | xgboost              | Score=0.8292 | [0.4s] | ~92s remaining
+  Trial 240 | logistic_regression  | Score=0.7902 | [0.0s] | ~92s remaining
+  Trial 241 | svc                  | Score=0.8223 | [0.1s] | ~92s remaining
+  Trial 242 | svc                  | Score=0.8180 | [0.1s] | ~92s remaining
+  Trial 243 | svc                  | Score=0.8210 | [0.1s] | ~91s remaining
+  Trial 244 | svc                  | Score=0.8197 | [0.1s] | ~91s remaining
+  Trial 245 | svc                  | Score=0.8208 | [0.1s] | ~91s remaining
+  Trial 246 | svc                  | Score=0.8223 | [0.1s] | ~91s remaining
+  Trial 247 | svc                  | Score=0.8197 | [0.1s] | ~91s remaining
+  Trial 248 | svc                  | Score=0.8168 | [0.1s] | ~91s remaining
+  Trial 249 | svc                  | Score=0.8450 | [0.0s] | ~91s remaining
+  Trial 250 | svc                  | Score=0.8196 | [0.1s] | ~91s remaining
+  Trial 251 | svc                  | Score=0.8210 | [0.1s] | ~91s remaining
+  Trial 252 | random_forest        | Score=0.8443 | [0.6s] | ~90s remaining
+  Trial 253 | svc                  | Score=0.8208 | [0.1s] | ~90s remaining
+  Trial 254 | svc                  | Score=0.8210 | [0.1s] | ~90s remaining
+  Trial 255 | svc                  | Score=0.8450 | [0.0s] | ~90s remaining
+  Trial 256 | svc                  | Score=0.8183 | [0.1s] | ~90s remaining
+  Trial 257 | xgboost              | Score=0.8283 | [0.4s] | ~89s remaining
+  Trial 258 | svc                  | Score=0.8450 | [0.0s] | ~89s remaining
+  Trial 259 | lightgbm             | Score=0.8206 | [0.3s] | ~89s remaining
+  Trial 260 | svc                  | Score=0.7692 | [0.0s] | ~89s remaining
+  Trial 261 | svc                  | Score=0.8168 | [0.1s] | ~89s remaining
+  Trial 262 | svc                  | Score=0.8208 | [0.1s] | ~89s remaining
+  Trial 263 | svc                  | Score=0.8210 | [0.1s] | ~89s remaining
+  Trial 264 | svc                  | Score=0.8223 | [0.1s] | ~89s remaining
+  Trial 265 | svc                  | Score=0.4689 | [0.0s] | ~89s remaining
+  Trial 266 | svc                  | Score=0.8180 | [0.1s] | ~89s remaining
+  Trial 267 | svc                  | Score=0.8170 | [0.1s] | ~89s remaining
+  Trial 268 | svc                  | Score=0.8450 | [0.0s] | ~89s remaining
+  Trial 269 | logistic_regression  | Score=0.7836 | [0.0s] | ~89s remaining
+  Trial 270 | svc                  | Score=0.8210 | [0.1s] | ~88s remaining
+  Trial 271 | svc                  | Score=0.8223 | [0.1s] | ~88s remaining
+  Trial 272 | xgboost              | Score=0.8309 | [0.5s] | ~88s remaining
+  Trial 273 | svc                  | Score=0.8180 | [0.2s] | ~88s remaining
+  Trial 274 | svc                  | Score=0.8210 | [0.1s] | ~88s remaining
+  Trial 275 | svc                  | Score=0.8168 | [0.1s] | ~87s remaining
+  Trial 276 | svc                  | Score=0.8309 | [0.0s] | ~87s remaining
+  Trial 277 | svc                  | Score=0.8208 | [0.1s] | ~87s remaining
+  Trial 278 | svc                  | Score=0.8450 | [0.0s] | ~87s remaining
+  Trial 279 | svc                  | Score=0.8197 | [0.1s] | ~87s remaining
+  Trial 280 | random_forest        | Score=0.8309 | [0.3s] | ~87s remaining
+  Trial 281 | svc                  | Score=0.8178 | [0.1s] | ~87s remaining
+  Trial 282 | svc                  | Score=0.8210 | [0.1s] | ~87s remaining
+  Trial 283 | svc                  | Score=0.8450 | [0.0s] | ~87s remaining
+  Trial 284 | lightgbm             | Score=0.8368 | [0.3s] | ~86s remaining
+  Trial 285 | svc                  | Score=0.8182 | [0.1s] | ~86s remaining
+  Trial 286 | xgboost              | Score=0.7597 | [0.2s] | ~86s remaining
+  Trial 287 | svc                  | Score=0.8210 | [0.1s] | ~86s remaining
+  Trial 288 | svc                  | Score=0.8450 | [0.0s] | ~86s remaining
+  Trial 289 | svc                  | Score=0.8208 | [0.1s] | ~86s remaining
+  Trial 290 | svc                  | Score=0.8170 | [0.1s] | ~86s remaining
+  Trial 291 | svc                  | Score=0.8210 | [0.1s] | ~86s remaining
+  Trial 292 | svc                  | Score=0.8196 | [0.1s] | ~86s remaining
+  Trial 293 | svc                  | Score=0.8383 | [0.0s] | ~86s remaining
+  Trial 294 | svc                  | Score=0.8208 | [0.1s] | ~86s remaining
+  Trial 295 | svc                  | Score=0.8210 | [0.1s] | ~85s remaining
+  Trial 296 | svc                  | Score=0.8168 | [0.1s] | ~85s remaining
+  Trial 297 | svc                  | Score=0.8450 | [0.0s] | ~85s remaining
+  Trial 298 | logistic_regression  | Score=0.7412 | [0.0s] | ~85s remaining
+  Trial 299 | svc                  | Score=0.8223 | [0.1s] | ~85s remaining
+  Trial 300 | xgboost              | Score=0.8383 | [0.1s] | ~85s remaining
+  Trial 301 | svc                  | Score=0.8383 | [0.0s] | ~85s remaining
+  Trial 302 | svc                  | Score=0.8180 | [0.1s] | ~85s remaining
+  Trial 303 | svc                  | Score=0.8197 | [0.1s] | ~85s remaining
+  Trial 304 | random_forest        | Score=0.8301 | [0.4s] | ~85s remaining
+  Trial 305 | svc                  | Score=0.8443 | [0.0s] | ~85s remaining
+  Trial 306 | svc                  | Score=0.8208 | [0.1s] | ~84s remaining
+  Trial 307 | svc                  | Score=0.8210 | [0.1s] | ~84s remaining
+  Trial 308 | svc                  | Score=0.8168 | [0.1s] | ~84s remaining
+  Trial 309 | svc                  | Score=0.8450 | [0.0s] | ~84s remaining
+  Trial 310 | svc                  | Score=0.8208 | [0.1s] | ~84s remaining
+  Trial 311 | lightgbm             | Score=0.7919 | [0.1s] | ~84s remaining
+  Trial 312 | svc                  | Score=0.4689 | [0.0s] | ~84s remaining
+  Trial 313 | svc                  | Score=0.8383 | [0.0s] | ~84s remaining
+  Trial 314 | svc                  | Score=0.8210 | [0.1s] | ~84s remaining
+  Trial 315 | svc                  | Score=0.8197 | [0.1s] | ~84s remaining
+  Trial 316 | xgboost              | Score=0.8242 | [0.3s] | ~84s remaining
+  Trial 317 | svc                  | Score=0.8223 | [0.1s] | ~83s remaining
+  Trial 318 | svc                  | Score=0.8196 | [0.1s] | ~83s remaining
+  Trial 319 | svc                  | Score=0.8180 | [0.1s] | ~83s remaining
+  Trial 320 | svc                  | Score=0.8210 | [0.1s] | ~83s remaining
+  Trial 321 | svc                  | Score=0.8450 | [0.0s] | ~83s remaining
+  Trial 322 | logistic_regression  | Score=0.7836 | [0.0s] | ~83s remaining
+  Trial 323 | svc                  | Score=0.8359 | [0.0s] | ~83s remaining
+  Trial 324 | svc                  | Score=0.8168 | [0.1s] | ~83s remaining
+  Trial 325 | svc                  | Score=0.8223 | [0.1s] | ~83s remaining
+  Trial 326 | svc                  | Score=0.8450 | [0.0s] | ~83s remaining
+  Trial 327 | svc                  | Score=0.8208 | [0.1s] | ~83s remaining
+  Trial 328 | xgboost              | Score=0.4689 | [0.1s] | ~83s remaining
+  Trial 329 | svc                  | Score=0.8183 | [0.1s] | ~83s remaining
+  Trial 330 | svc                  | Score=0.8210 | [0.1s] | ~83s remaining
+  Trial 331 | random_forest        | Score=0.8383 | [0.3s] | ~82s remaining
+  Trial 332 | svc                  | Score=0.8180 | [0.1s] | ~82s remaining
+  Trial 333 | svc                  | Score=0.8182 | [0.1s] | ~82s remaining
+  Trial 334 | svc                  | Score=0.8223 | [0.1s] | ~82s remaining
+  Trial 335 | svc                  | Score=0.8197 | [0.1s] | ~82s remaining
+  Trial 336 | svc                  | Score=0.4689 | [0.0s] | ~82s remaining
+  Trial 337 | lightgbm             | Score=0.4689 | [0.1s] | ~82s remaining
+  Trial 338 | svc                  | Score=0.8178 | [0.1s] | ~82s remaining
+  Trial 339 | svc                  | Score=0.8223 | [0.1s] | ~82s remaining
+  Trial 340 | svc                  | Score=0.8510 | [0.0s] | ~82s remaining
+  Trial 341 | svc                  | Score=0.8450 | [0.0s] | ~82s remaining
+  Trial 342 | svc                  | Score=0.8450 | [0.0s] | ~82s remaining
+  Trial 343 | xgboost              | Score=0.8350 | [0.2s] | ~81s remaining
+  Trial 344 | svc                  | Score=0.8168 | [0.1s] | ~81s remaining
+  Trial 345 | svc                  | Score=0.8210 | [0.1s] | ~81s remaining
+  Trial 346 | svc                  | Score=0.8208 | [0.1s] | ~81s remaining
+  Trial 347 | svc                  | Score=0.8170 | [0.1s] | ~81s remaining
+  Trial 348 | svc                  | Score=0.8223 | [0.1s] | ~81s remaining
+  Trial 349 | svc                  | Score=0.8196 | [0.1s] | ~81s remaining
+  Trial 350 | logistic_regression  | Score=0.7761 | [0.0s] | ~81s remaining
+  Trial 351 | svc                  | Score=0.8309 | [0.0s] | ~81s remaining
+  Trial 352 | svc                  | Score=0.8450 | [0.0s] | ~81s remaining
+  Trial 353 | svc                  | Score=0.8208 | [0.1s] | ~81s remaining
+  Trial 354 | svc                  | Score=0.8210 | [0.1s] | ~81s remaining
+  Trial 355 | svc                  | Score=0.8502 | [0.0s] | ~81s remaining
+  Trial 356 | xgboost              | Score=0.8234 | [0.2s] | ~81s remaining
+  Trial 357 | svc                  | Score=0.8154 | [0.1s] | ~80s remaining
+  Trial 358 | random_forest        | Score=0.8301 | [0.2s] | ~80s remaining
+  Trial 359 | svc                  | Score=0.8211 | [0.1s] | ~80s remaining
+  Trial 360 | svc                  | Score=0.8223 | [0.1s] | ~80s remaining
+  Trial 361 | svc                  | Score=0.8178 | [0.1s] | ~80s remaining
+  Trial 362 | svc                  | Score=0.8197 | [0.1s] | ~80s remaining
+  Trial 363 | svc                  | Score=0.8210 | [0.1s] | ~80s remaining
+  Trial 364 | lightgbm             | Score=0.8027 | [0.1s] | ~80s remaining
+  Trial 365 | svc                  | Score=0.8223 | [0.1s] | ~80s remaining
+  Trial 366 | svc                  | Score=0.8182 | [0.1s] | ~80s remaining
+  Trial 367 | svc                  | Score=0.8450 | [0.0s] | ~80s remaining
+  Trial 368 | svc                  | Score=0.8196 | [0.1s] | ~79s remaining
+  Trial 369 | svc                  | Score=0.8226 | [0.0s] | ~79s remaining
+  Trial 370 | svc                  | Score=0.8210 | [0.1s] | ~79s remaining
+  Trial 371 | xgboost              | Score=0.8056 | [0.2s] | ~79s remaining
+  Trial 372 | svc                  | Score=0.8208 | [0.1s] | ~79s remaining
+  Trial 373 | svc                  | Score=0.8170 | [0.1s] | ~79s remaining
+  Trial 374 | svc                  | Score=0.8450 | [0.0s] | ~79s remaining
+  Trial 375 | svc                  | Score=0.8223 | [0.1s] | ~79s remaining
+  Trial 376 | svc                  | Score=0.8210 | [0.1s] | ~79s remaining
+  Trial 377 | logistic_regression  | Score=0.7836 | [0.0s] | ~79s remaining
+  Trial 378 | svc                  | Score=0.8178 | [0.1s] | ~79s remaining
+  Trial 379 | svc                  | Score=0.8168 | [0.1s] | ~79s remaining
+  Trial 380 | svc                  | Score=0.8210 | [0.1s] | ~79s remaining
+  Trial 381 | svc                  | Score=0.8223 | [0.1s] | ~78s remaining
+  Trial 382 | svc                  | Score=0.8450 | [0.0s] | ~78s remaining
+  Trial 383 | svc                  | Score=0.8210 | [0.1s] | ~78s remaining
+  Trial 384 | xgboost              | Score=0.8056 | [0.2s] | ~78s remaining
+  Trial 385 | svc                  | Score=0.8168 | [0.1s] | ~78s remaining
+  Trial 386 | random_forest        | Score=0.8383 | [0.6s] | ~77s remaining
+  Trial 387 | svc                  | Score=0.8450 | [0.0s] | ~77s remaining
+  Trial 388 | svc                  | Score=0.8180 | [0.1s] | ~77s remaining
+  Trial 389 | svc                  | Score=0.8183 | [0.1s] | ~77s remaining
+  Trial 390 | svc                  | Score=0.8223 | [0.1s] | ~77s remaining
+  Trial 391 | lightgbm             | Score=0.8101 | [0.2s] | ~77s remaining
+  Trial 392 | svc                  | Score=0.8210 | [0.1s] | ~77s remaining
+  Trial 393 | svc                  | Score=0.8180 | [0.1s] | ~77s remaining
+  Trial 394 | svc                  | Score=0.8450 | [0.0s] | ~77s remaining
+  Trial 395 | svc                  | Score=0.8208 | [0.1s] | ~77s remaining
+  Trial 396 | svc                  | Score=0.8383 | [0.0s] | ~77s remaining
+  Trial 397 | svc                  | Score=0.8170 | [0.1s] | ~77s remaining
+  Trial 398 | svc                  | Score=0.8210 | [0.1s] | ~77s remaining
+  Trial 399 | xgboost              | Score=0.8175 | [0.2s] | ~76s remaining
+  Trial 400 | svc                  | Score=0.8178 | [0.1s] | ~76s remaining
+  Trial 401 | logistic_regression  | Score=0.4689 | [0.0s] | ~76s remaining
+  Trial 402 | svc                  | Score=0.8168 | [0.1s] | ~76s remaining
+  Trial 403 | svc                  | Score=0.8211 | [0.1s] | ~76s remaining
+  Trial 404 | svc                  | Score=0.8197 | [0.1s] | ~76s remaining
+  Trial 405 | svc                  | Score=0.8223 | [0.1s] | ~76s remaining
+  Trial 406 | svc                  | Score=0.8208 | [0.1s] | ~76s remaining
+  Trial 407 | svc                  | Score=0.8450 | [0.0s] | ~76s remaining
+  Trial 408 | svc                  | Score=0.8383 | [0.0s] | ~76s remaining
+  Trial 409 | svc                  | Score=0.8170 | [0.1s] | ~76s remaining
+  Trial 410 | random_forest        | Score=0.8234 | [0.5s] | ~75s remaining
+  Trial 411 | svc                  | Score=0.8210 | [0.1s] | ~75s remaining
+  Trial 412 | svc                  | Score=0.8443 | [0.0s] | ~75s remaining
+  Trial 413 | xgboost              | Score=0.8493 | [0.2s] | ~75s remaining
+  Trial 414 | svc                  | Score=0.8196 | [0.1s] | ~75s remaining
+  Trial 415 | svc                  | Score=0.8210 | [0.1s] | ~75s remaining
+  Trial 416 | lightgbm             | Score=0.8276 | [0.3s] | ~74s remaining  <- new best
+  Trial 417 | lightgbm             | Score=0.8264 | [0.3s] | ~74s remaining
+  Trial 418 | lightgbm             | Score=0.8263 | [0.4s] | ~74s remaining
+  Trial 419 | lightgbm             | Score=0.8450 | [0.1s] | ~74s remaining
+  Trial 420 | lightgbm             | Score=0.8376 | [0.1s] | ~74s remaining
+  Trial 421 | lightgbm             | Score=0.8443 | [0.1s] | ~74s remaining
+  Trial 422 | lightgbm             | Score=0.8264 | [0.3s] | ~73s remaining
+  Trial 423 | lightgbm             | Score=0.8251 | [0.3s] | ~73s remaining
+  Trial 424 | lightgbm             | Score=0.8383 | [0.1s] | ~73s remaining
+  Trial 425 | lightgbm             | Score=0.8316 | [0.1s] | ~73s remaining
+  Trial 426 | lightgbm             | Score=0.8272 | [0.3s] | ~73s remaining
+  Trial 427 | lightgbm             | Score=0.8450 | [0.1s] | ~72s remaining
+  Trial 428 | lightgbm             | Score=0.8383 | [0.1s] | ~72s remaining
+  Trial 429 | lightgbm             | Score=0.8450 | [0.1s] | ~72s remaining
+  Trial 430 | lightgbm             | Score=0.8510 | [0.1s] | ~72s remaining
+  Trial 431 | lightgbm             | Score=0.8450 | [0.1s] | ~72s remaining
+  Trial 432 | lightgbm             | Score=0.8255 | [0.2s] | ~72s remaining
+  Trial 433 | lightgbm             | Score=0.8264 | [0.2s] | ~72s remaining
+  Trial 434 | lightgbm             | Score=0.8309 | [0.1s] | ~72s remaining
+  Trial 435 | lightgbm             | Score=0.8383 | [0.1s] | ~72s remaining
+  Trial 436 | lightgbm             | Score=0.8368 | [0.1s] | ~72s remaining
+  Trial 437 | lightgbm             | Score=0.8249 | [0.0s] | ~72s remaining
+  Trial 438 | lightgbm             | Score=0.8249 | [0.1s] | ~71s remaining
+  Trial 439 | lightgbm             | Score=0.8309 | [0.1s] | ~71s remaining
+  Trial 440 | lightgbm             | Score=0.8383 | [0.1s] | ~71s remaining
+  Trial 441 | lightgbm             | Score=0.8316 | [0.1s] | ~71s remaining
+  Trial 442 | lightgbm             | Score=0.8376 | [0.1s] | ~71s remaining
+  Trial 443 | lightgbm             | Score=0.8368 | [0.1s] | ~71s remaining
+  Trial 444 | lightgbm             | Score=0.8234 | [0.1s] | ~71s remaining
+  Trial 445 | lightgbm             | Score=0.7942 | [0.1s] | ~71s remaining
+  Trial 446 | lightgbm             | Score=0.8301 | [0.1s] | ~71s remaining
+  Trial 447 | lightgbm             | Score=0.8206 | [0.3s] | ~71s remaining
+  Trial 448 | lightgbm             | Score=0.8450 | [0.1s] | ~70s remaining
+  Trial 449 | lightgbm             | Score=0.8383 | [0.1s] | ~70s remaining
+  Trial 450 | lightgbm             | Score=0.8234 | [0.1s] | ~70s remaining
+  Trial 451 | lightgbm             | Score=0.8209 | [0.2s] | ~70s remaining
+  Trial 452 | lightgbm             | Score=0.8249 | [0.1s] | ~70s remaining
+  Trial 453 | lightgbm             | Score=0.8435 | [0.1s] | ~70s remaining
+  Trial 454 | lightgbm             | Score=0.8450 | [0.1s] | ~70s remaining
+  Trial 455 | lightgbm             | Score=0.8368 | [0.1s] | ~70s remaining
+  Trial 456 | lightgbm             | Score=0.7997 | [0.1s] | ~70s remaining
+  Trial 457 | lightgbm             | Score=0.8322 | [0.1s] | ~70s remaining
+  Trial 458 | lightgbm             | Score=0.8301 | [0.1s] | ~70s remaining
+  Trial 459 | lightgbm             | Score=0.7841 | [0.0s] | ~70s remaining
+  Trial 460 | lightgbm             | Score=0.8251 | [0.2s] | ~69s remaining
+  Trial 461 | lightgbm             | Score=0.8289 | [0.2s] | ~69s remaining  <- new best
+  Trial 462 | lightgbm             | Score=0.8291 | [0.2s] | ~69s remaining  <- new best
+  Trial 463 | lightgbm             | Score=0.8450 | [0.1s] | ~69s remaining
+  Trial 464 | lightgbm             | Score=0.8435 | [0.1s] | ~69s remaining
+  Trial 465 | lightgbm             | Score=0.8376 | [0.1s] | ~69s remaining
+  Trial 466 | lightgbm             | Score=0.8278 | [0.4s] | ~68s remaining
+  Trial 467 | lightgbm             | Score=0.8251 | [0.3s] | ~68s remaining
+  Trial 468 | lightgbm             | Score=0.8264 | [0.3s] | ~68s remaining
+  Trial 469 | lightgbm             | Score=0.8450 | [0.1s] | ~68s remaining
+  Trial 470 | lightgbm             | Score=0.8450 | [0.1s] | ~68s remaining
+  Trial 471 | lightgbm             | Score=0.8242 | [0.1s] | ~67s remaining
+  Trial 472 | lightgbm             | Score=0.8443 | [0.1s] | ~67s remaining
+  Trial 473 | lightgbm             | Score=0.8263 | [0.3s] | ~67s remaining
+  Trial 474 | lightgbm             | Score=0.8278 | [0.3s] | ~67s remaining
+  Trial 475 | lightgbm             | Score=0.8291 | [0.3s] | ~67s remaining  <- new best
+  Trial 476 | lightgbm             | Score=0.8450 | [0.1s] | ~67s remaining
+  Trial 477 | lightgbm             | Score=0.8316 | [0.1s] | ~66s remaining
+  Trial 478 | lightgbm             | Score=0.8383 | [0.1s] | ~66s remaining
+  Trial 479 | lightgbm             | Score=0.8376 | [0.1s] | ~66s remaining
+  Trial 480 | lightgbm             | Score=0.8383 | [0.1s] | ~66s remaining
+  Trial 481 | lightgbm             | Score=0.8450 | [0.1s] | ~66s remaining
+  Trial 482 | lightgbm             | Score=0.8443 | [0.1s] | ~66s remaining
+  Trial 483 | lightgbm             | Score=0.8224 | [0.3s] | ~66s remaining
+  Trial 484 | lightgbm             | Score=0.8450 | [0.1s] | ~66s remaining
+  Trial 485 | lightgbm             | Score=0.8450 | [0.1s] | ~65s remaining
+  Trial 486 | lightgbm             | Score=0.8450 | [0.1s] | ~65s remaining
+  Trial 487 | lightgbm             | Score=0.8205 | [0.2s] | ~65s remaining
+  Trial 488 | lightgbm             | Score=0.8450 | [0.1s] | ~65s remaining
+  Trial 489 | lightgbm             | Score=0.8383 | [0.1s] | ~65s remaining
+  Trial 490 | lightgbm             | Score=0.8186 | [0.3s] | ~65s remaining
+  Trial 491 | lightgbm             | Score=0.8450 | [0.1s] | ~65s remaining
+  Trial 492 | lightgbm             | Score=0.8316 | [0.1s] | ~65s remaining
+  Trial 493 | lightgbm             | Score=0.8309 | [0.1s] | ~64s remaining
+  Trial 494 | lightgbm             | Score=0.8235 | [0.3s] | ~64s remaining
+  Trial 495 | lightgbm             | Score=0.8303 | [0.3s] | ~64s remaining  <- new best
+  Trial 496 | lightgbm             | Score=0.8304 | [0.3s] | ~64s remaining  <- new best
+  Trial 497 | lightgbm             | Score=0.8317 | [0.3s] | ~63s remaining  <- new best
+  Trial 498 | lightgbm             | Score=0.8292 | [0.3s] | ~63s remaining
+  Trial 499 | lightgbm             | Score=0.8376 | [0.1s] | ~63s remaining
+  Trial 500 | lightgbm             | Score=0.8291 | [0.3s] | ~62s remaining
+  Trial 501 | lightgbm             | Score=0.8276 | [0.3s] | ~62s remaining
+  Trial 502 | lightgbm             | Score=0.8250 | [0.6s] | ~62s remaining
+  Trial 503 | lightgbm             | Score=0.8278 | [0.5s] | ~61s remaining
+  Trial 504 | lightgbm             | Score=0.8383 | [0.1s] | ~61s remaining
+  Trial 505 | lightgbm             | Score=0.8309 | [0.1s] | ~61s remaining
+  Trial 506 | lightgbm             | Score=0.8214 | [0.3s] | ~61s remaining
+  Trial 507 | lightgbm             | Score=0.8279 | [0.4s] | ~60s remaining
+  Trial 508 | lightgbm             | Score=0.8309 | [0.1s] | ~60s remaining
+  Trial 509 | lightgbm             | Score=0.8450 | [0.1s] | ~60s remaining
+  Trial 510 | lightgbm             | Score=0.8450 | [0.1s] | ~60s remaining
+  Trial 511 | lightgbm             | Score=0.8291 | [0.3s] | ~60s remaining
+  Trial 512 | lightgbm             | Score=0.8376 | [0.1s] | ~60s remaining
+  Trial 513 | lightgbm             | Score=0.8450 | [0.1s] | ~60s remaining
+  Trial 514 | lightgbm             | Score=0.8275 | [0.3s] | ~59s remaining
+  Trial 515 | lightgbm             | Score=0.8246 | [0.3s] | ~59s remaining
+  Trial 516 | lightgbm             | Score=0.8510 | [0.1s] | ~59s remaining
+  Trial 517 | lightgbm             | Score=0.8450 | [0.1s] | ~59s remaining
+  Trial 518 | lightgbm             | Score=0.8450 | [0.1s] | ~59s remaining
+  Trial 519 | lightgbm             | Score=0.8443 | [0.1s] | ~59s remaining
+  Trial 520 | lightgbm             | Score=0.8450 | [0.1s] | ~58s remaining
+  Trial 521 | lightgbm             | Score=0.8240 | [0.4s] | ~58s remaining
+  Trial 522 | lightgbm             | Score=0.8443 | [0.1s] | ~58s remaining
+  Trial 523 | lightgbm             | Score=0.8389 | [0.1s] | ~58s remaining
+  Trial 524 | lightgbm             | Score=0.8304 | [0.3s] | ~58s remaining
+  Trial 525 | lightgbm             | Score=0.8443 | [0.1s] | ~58s remaining
+  Trial 526 | lightgbm             | Score=0.8278 | [0.4s] | ~57s remaining
+  Trial 527 | lightgbm             | Score=0.8253 | [0.3s] | ~57s remaining
+  Trial 528 | lightgbm             | Score=0.8450 | [0.1s] | ~57s remaining
+  Trial 529 | lightgbm             | Score=0.8376 | [0.1s] | ~57s remaining
+  Trial 530 | lightgbm             | Score=0.8450 | [0.1s] | ~57s remaining
+  Trial 531 | lightgbm             | Score=0.8279 | [0.3s] | ~56s remaining
+  Trial 532 | lightgbm             | Score=0.8278 | [0.3s] | ~56s remaining
+  Trial 533 | lightgbm             | Score=0.8450 | [0.1s] | ~56s remaining
+  Trial 534 | lightgbm             | Score=0.8248 | [0.3s] | ~56s remaining
+  Trial 535 | lightgbm             | Score=0.8450 | [0.1s] | ~56s remaining
+  Trial 536 | lightgbm             | Score=0.8376 | [0.1s] | ~56s remaining
+  Trial 537 | lightgbm             | Score=0.8383 | [0.1s] | ~55s remaining
+  Trial 538 | lightgbm             | Score=0.8383 | [0.1s] | ~55s remaining
+  Trial 539 | lightgbm             | Score=0.8278 | [0.3s] | ~55s remaining
+  Trial 540 | lightgbm             | Score=0.8443 | [0.1s] | ~55s remaining
+  Trial 541 | lightgbm             | Score=0.8450 | [0.1s] | ~55s remaining
+  Trial 542 | lightgbm             | Score=0.8502 | [0.1s] | ~55s remaining
+  Trial 543 | lightgbm             | Score=0.8264 | [0.3s] | ~55s remaining
+  Trial 544 | lightgbm             | Score=0.8249 | [0.1s] | ~55s remaining
+  Trial 545 | lightgbm             | Score=0.8376 | [0.1s] | ~54s remaining
+  Trial 546 | lightgbm             | Score=0.8278 | [0.3s] | ~54s remaining
+  Trial 547 | lightgbm             | Score=0.8236 | [0.3s] | ~54s remaining
+  Trial 548 | lightgbm             | Score=0.8450 | [0.1s] | ~54s remaining
+  Trial 549 | lightgbm             | Score=0.8376 | [0.1s] | ~54s remaining
+  Trial 550 | lightgbm             | Score=0.8383 | [0.1s] | ~54s remaining
+  Trial 551 | lightgbm             | Score=0.8316 | [0.1s] | ~54s remaining
+  Trial 552 | lightgbm             | Score=0.8450 | [0.1s] | ~54s remaining
+  Trial 553 | lightgbm             | Score=0.8234 | [0.3s] | ~53s remaining
+  Trial 554 | lightgbm             | Score=0.8510 | [0.1s] | ~53s remaining
+  Trial 555 | lightgbm             | Score=0.8234 | [0.1s] | ~53s remaining
+  Trial 556 | lightgbm             | Score=0.8254 | [0.3s] | ~53s remaining
+  Trial 557 | lightgbm             | Score=0.7906 | [0.1s] | ~53s remaining
+  Trial 558 | lightgbm             | Score=0.8316 | [0.1s] | ~53s remaining
+  Trial 559 | lightgbm             | Score=0.8443 | [0.1s] | ~52s remaining
+  Trial 560 | lightgbm             | Score=0.7952 | [0.1s] | ~52s remaining
+  Trial 561 | lightgbm             | Score=0.8316 | [0.1s] | ~52s remaining
+  Trial 562 | lightgbm             | Score=0.8279 | [0.2s] | ~52s remaining
+  Trial 563 | lightgbm             | Score=0.8266 | [0.2s] | ~52s remaining
+  Trial 564 | lightgbm             | Score=0.8383 | [0.1s] | ~52s remaining
+  Trial 565 | lightgbm             | Score=0.8383 | [0.1s] | ~52s remaining
+  Trial 566 | lightgbm             | Score=0.8276 | [0.2s] | ~52s remaining
+  Trial 567 | lightgbm             | Score=0.8238 | [0.2s] | ~51s remaining
+  Trial 568 | lightgbm             | Score=0.8244 | [0.2s] | ~51s remaining
+  Trial 569 | lightgbm             | Score=0.8510 | [0.1s] | ~51s remaining
+  Trial 570 | lightgbm             | Score=0.8443 | [0.1s] | ~51s remaining
+  Trial 571 | lightgbm             | Score=0.8098 | [0.2s] | ~51s remaining
+  Trial 572 | lightgbm             | Score=0.8261 | [0.3s] | ~50s remaining
+  Trial 573 | lightgbm             | Score=0.8018 | [0.1s] | ~50s remaining
+  Trial 574 | lightgbm             | Score=0.8207 | [0.2s] | ~50s remaining
+  Trial 575 | lightgbm             | Score=0.8383 | [0.1s] | ~50s remaining
+  Trial 576 | lightgbm             | Score=0.8450 | [0.1s] | ~50s remaining
+  Trial 577 | lightgbm             | Score=0.8383 | [0.1s] | ~50s remaining
+  Trial 578 | lightgbm             | Score=0.8383 | [0.1s] | ~50s remaining
+  Trial 579 | lightgbm             | Score=0.8376 | [0.1s] | ~50s remaining
+  Trial 580 | lightgbm             | Score=0.8309 | [0.1s] | ~50s remaining
+  Trial 581 | lightgbm             | Score=0.8289 | [0.3s] | ~49s remaining
+  Trial 582 | lightgbm             | Score=0.8293 | [0.3s] | ~49s remaining
+  Trial 583 | lightgbm             | Score=0.8443 | [0.1s] | ~49s remaining
+  Trial 584 | lightgbm             | Score=0.8278 | [0.3s] | ~49s remaining
+  Trial 585 | lightgbm             | Score=0.8383 | [0.1s] | ~48s remaining
+  Trial 586 | lightgbm             | Score=0.8253 | [0.3s] | ~48s remaining
+  Trial 587 | lightgbm             | Score=0.8450 | [0.1s] | ~48s remaining
+  Trial 588 | lightgbm             | Score=0.8316 | [0.1s] | ~48s remaining
+  Trial 589 | lightgbm             | Score=0.8450 | [0.1s] | ~48s remaining
+  Trial 590 | lightgbm             | Score=0.8450 | [0.1s] | ~48s remaining
+  Trial 591 | lightgbm             | Score=0.8450 | [0.1s] | ~48s remaining
+  Trial 592 | lightgbm             | Score=0.8450 | [0.1s] | ~48s remaining
+  Trial 593 | logistic_regression  | Score=0.7836 | [0.0s] | ~48s remaining
+  Trial 594 | lightgbm             | Score=0.8450 | [0.1s] | ~48s remaining
+  Trial 595 | lightgbm             | Score=0.8291 | [0.3s] | ~47s remaining
+  Trial 596 | lightgbm             | Score=0.8383 | [0.1s] | ~47s remaining
+  Trial 597 | lightgbm             | Score=0.8383 | [0.1s] | ~47s remaining
+  Trial 598 | random_forest        | Score=0.8234 | [0.4s] | ~47s remaining
+  Trial 599 | lightgbm             | Score=0.8376 | [0.1s] | ~47s remaining
+  Trial 600 | lightgbm             | Score=0.8219 | [0.4s] | ~46s remaining
+  Trial 601 | lightgbm             | Score=0.8293 | [0.3s] | ~46s remaining
+  Trial 602 | lightgbm             | Score=0.8450 | [0.1s] | ~46s remaining
+  Trial 603 | lightgbm             | Score=0.8238 | [0.4s] | ~45s remaining
+  Trial 604 | lightgbm             | Score=0.8450 | [0.1s] | ~45s remaining
+  Trial 605 | lightgbm             | Score=0.8264 | [0.3s] | ~45s remaining
+  Trial 606 | lightgbm             | Score=0.8383 | [0.1s] | ~45s remaining
+  Trial 607 | lightgbm             | Score=0.8450 | [0.1s] | ~45s remaining
+  Trial 608 | lightgbm             | Score=0.8443 | [0.1s] | ~45s remaining
+  Trial 609 | lightgbm             | Score=0.8278 | [0.3s] | ~45s remaining
+  Trial 610 | lightgbm             | Score=0.8450 | [0.1s] | ~44s remaining
+  Trial 611 | lightgbm             | Score=0.8450 | [0.1s] | ~44s remaining
+  Trial 612 | lightgbm             | Score=0.8383 | [0.1s] | ~44s remaining
+  Trial 613 | lightgbm             | Score=0.8234 | [0.1s] | ~44s remaining
+  Trial 614 | lightgbm             | Score=0.7971 | [0.1s] | ~44s remaining
+  Trial 615 | lightgbm             | Score=0.8234 | [0.1s] | ~44s remaining
+  Trial 616 | logistic_regression  | Score=0.7317 | [0.0s] | ~44s remaining
+  Trial 617 | lightgbm             | Score=0.8450 | [0.1s] | ~44s remaining
+  Trial 618 | lightgbm             | Score=0.8450 | [0.1s] | ~44s remaining
+  Trial 619 | lightgbm             | Score=0.8443 | [0.1s] | ~44s remaining
+  Trial 620 | lightgbm             | Score=0.8309 | [0.1s] | ~44s remaining
+  Trial 621 | lightgbm             | Score=0.8221 | [0.3s] | ~43s remaining
+  Trial 622 | lightgbm             | Score=0.8278 | [0.3s] | ~43s remaining
+  Trial 623 | lightgbm             | Score=0.8450 | [0.1s] | ~43s remaining
+  Trial 624 | random_forest        | Score=0.8242 | [0.3s] | ~43s remaining
+  Trial 625 | lightgbm             | Score=0.8252 | [0.3s] | ~42s remaining
+  Trial 626 | lightgbm             | Score=0.8443 | [0.1s] | ~42s remaining
+  Trial 627 | lightgbm             | Score=0.8063 | [0.1s] | ~42s remaining
+  Trial 628 | lightgbm             | Score=0.8443 | [0.1s] | ~42s remaining
+  Trial 629 | lightgbm             | Score=0.8239 | [0.3s] | ~42s remaining
+  Trial 630 | lightgbm             | Score=0.8510 | [0.1s] | ~42s remaining
+  Trial 631 | lightgbm             | Score=0.8383 | [0.1s] | ~42s remaining
+  Trial 632 | lightgbm             | Score=0.8450 | [0.1s] | ~42s remaining
+  Trial 633 | lightgbm             | Score=0.8443 | [0.1s] | ~41s remaining
+  Trial 634 | lightgbm             | Score=0.8383 | [0.2s] | ~41s remaining
+  Trial 635 | lightgbm             | Score=0.8251 | [0.4s] | ~41s remaining
+  Trial 636 | lightgbm             | Score=0.8317 | [0.4s] | ~41s remaining
+  Trial 637 | lightgbm             | Score=0.8450 | [0.1s] | ~40s remaining
+  Trial 638 | lightgbm             | Score=0.8450 | [0.1s] | ~40s remaining
+  Trial 639 | lightgbm             | Score=0.8450 | [0.1s] | ~40s remaining
+  Trial 640 | logistic_regression  | Score=0.7854 | [0.0s] | ~40s remaining
+  Trial 641 | lightgbm             | Score=0.8376 | [0.1s] | ~40s remaining
+  Trial 642 | lightgbm             | Score=0.8383 | [0.1s] | ~40s remaining
+  Trial 643 | lightgbm             | Score=0.8304 | [0.3s] | ~40s remaining
+  Trial 644 | lightgbm             | Score=0.8289 | [0.3s] | ~39s remaining
+  Trial 645 | lightgbm             | Score=0.8450 | [0.1s] | ~39s remaining
+  Trial 646 | lightgbm             | Score=0.8450 | [0.1s] | ~39s remaining
+  Trial 647 | random_forest        | Score=0.8301 | [0.2s] | ~39s remaining
+  Trial 648 | lightgbm             | Score=0.8302 | [0.4s] | ~39s remaining
+  Trial 649 | lightgbm             | Score=0.8316 | [0.1s] | ~39s remaining
+  Trial 650 | lightgbm             | Score=0.8168 | [0.1s] | ~39s remaining
+  Trial 651 | lightgbm             | Score=0.8249 | [0.3s] | ~38s remaining
+  Trial 652 | lightgbm             | Score=0.8450 | [0.1s] | ~38s remaining
+  Trial 653 | lightgbm             | Score=0.8450 | [0.1s] | ~38s remaining
+  Trial 654 | lightgbm             | Score=0.8279 | [0.4s] | ~38s remaining
+  Trial 655 | lightgbm             | Score=0.8316 | [0.1s] | ~38s remaining
+  Trial 656 | lightgbm             | Score=0.8450 | [0.1s] | ~37s remaining
+  Trial 657 | lightgbm             | Score=0.8383 | [0.1s] | ~37s remaining
+  Trial 658 | lightgbm             | Score=0.8236 | [0.4s] | ~37s remaining
+  Trial 659 | lightgbm             | Score=0.8450 | [0.1s] | ~37s remaining
+  Trial 660 | lightgbm             | Score=0.8279 | [0.3s] | ~37s remaining
+  Trial 661 | lightgbm             | Score=0.8450 | [0.1s] | ~36s remaining
+  Trial 662 | lightgbm             | Score=0.8450 | [0.1s] | ~36s remaining
+  Trial 663 | lightgbm             | Score=0.8450 | [0.1s] | ~36s remaining
+  Trial 664 | logistic_regression  | Score=0.4689 | [0.0s] | ~36s remaining
+  Trial 665 | lightgbm             | Score=0.8211 | [0.3s] | ~36s remaining
+  Trial 666 | lightgbm             | Score=0.8383 | [0.1s] | ~36s remaining
+  Trial 667 | lightgbm             | Score=0.8109 | [0.1s] | ~36s remaining
+  Trial 668 | lightgbm             | Score=0.8018 | [0.1s] | ~36s remaining
+  Trial 669 | lightgbm             | Score=0.8450 | [0.1s] | ~36s remaining
+  Trial 670 | lightgbm             | Score=0.8316 | [0.1s] | ~36s remaining
+  Trial 671 | lightgbm             | Score=0.8286 | [0.3s] | ~35s remaining
+  Trial 672 | random_forest        | Score=0.8450 | [0.6s] | ~35s remaining
+  Trial 673 | lightgbm             | Score=0.8260 | [0.3s] | ~34s remaining
+  Trial 674 | lightgbm             | Score=0.8258 | [0.5s] | ~34s remaining
+  Trial 675 | lightgbm             | Score=0.8301 | [0.1s] | ~34s remaining
+  Trial 676 | lightgbm             | Score=0.8218 | [0.3s] | ~34s remaining
+  Trial 677 | lightgbm             | Score=0.8277 | [0.4s] | ~33s remaining
+  Trial 678 | lightgbm             | Score=0.8056 | [0.1s] | ~33s remaining
+  Trial 679 | lightgbm             | Score=0.8435 | [0.1s] | ~33s remaining
+  Trial 680 | lightgbm             | Score=0.8450 | [0.1s] | ~33s remaining
+  Trial 681 | lightgbm             | Score=0.8450 | [0.1s] | ~33s remaining
+  Trial 682 | lightgbm             | Score=0.8435 | [0.1s] | ~33s remaining
+  Trial 683 | lightgbm             | Score=0.8264 | [0.3s] | ~32s remaining
+  Trial 684 | lightgbm             | Score=0.8510 | [0.1s] | ~32s remaining
+  Trial 685 | lightgbm             | Score=0.8203 | [0.2s] | ~32s remaining
+  Trial 686 | lightgbm             | Score=0.8443 | [0.1s] | ~32s remaining
+  Trial 687 | lightgbm             | Score=0.8262 | [0.3s] | ~32s remaining
+  Trial 688 | logistic_regression  | Score=0.4689 | [0.0s] | ~32s remaining
+  Trial 689 | lightgbm             | Score=0.8450 | [0.1s] | ~32s remaining
+  Trial 690 | lightgbm             | Score=0.8510 | [0.1s] | ~32s remaining
+  Trial 691 | lightgbm             | Score=0.8316 | [0.1s] | ~31s remaining
+  Trial 692 | lightgbm             | Score=0.8264 | [0.2s] | ~31s remaining
+  Trial 693 | lightgbm             | Score=0.8278 | [0.3s] | ~31s remaining
+  Trial 694 | lightgbm             | Score=0.8383 | [0.1s] | ~31s remaining
+  Trial 695 | lightgbm             | Score=0.8443 | [0.1s] | ~31s remaining
+  Trial 696 | lightgbm             | Score=0.8219 | [0.3s] | ~30s remaining
+  Trial 697 | random_forest        | Score=0.8376 | [0.5s] | ~30s remaining
+  Trial 698 | lightgbm             | Score=0.8450 | [0.1s] | ~30s remaining
+  Trial 699 | lightgbm             | Score=0.8301 | [0.2s] | ~30s remaining
+  Trial 700 | lightgbm             | Score=0.8450 | [0.1s] | ~30s remaining
+  Trial 701 | lightgbm             | Score=0.8278 | [0.3s] | ~29s remaining
+  Trial 702 | lightgbm             | Score=0.8450 | [0.1s] | ~29s remaining
+  Trial 703 | lightgbm             | Score=0.8182 | [0.1s] | ~29s remaining
+  Trial 704 | lightgbm             | Score=0.8291 | [0.3s] | ~29s remaining
+  Trial 705 | xgboost              | Score=0.8309 | [0.1s] | ~29s remaining
+  Trial 706 | lightgbm             | Score=0.8450 | [0.1s] | ~29s remaining
+  Trial 707 | lightgbm             | Score=0.8450 | [0.1s] | ~29s remaining
+  Trial 708 | lightgbm             | Score=0.8510 | [0.1s] | ~28s remaining
+  Trial 709 | lightgbm             | Score=0.8304 | [0.6s] | ~28s remaining
+  Trial 710 | lightgbm             | Score=0.8376 | [0.1s] | ~28s remaining
+  Trial 711 | lightgbm             | Score=0.8309 | [0.1s] | ~28s remaining
+  Trial 712 | lightgbm             | Score=0.8183 | [0.3s] | ~27s remaining
+  Trial 713 | lightgbm             | Score=0.8450 | [0.2s] | ~27s remaining
+  Trial 714 | lightgbm             | Score=0.8443 | [0.2s] | ~27s remaining
+  Trial 715 | logistic_regression  | Score=0.7836 | [0.0s] | ~27s remaining
+  Trial 716 | lightgbm             | Score=0.8450 | [0.1s] | ~27s remaining
+  Trial 717 | lightgbm             | Score=0.8253 | [0.3s] | ~27s remaining
+  Trial 718 | lightgbm             | Score=0.8291 | [0.3s] | ~26s remaining
+  Trial 719 | lightgbm             | Score=0.8316 | [0.1s] | ~26s remaining
+  Trial 720 | lightgbm             | Score=0.8302 | [0.3s] | ~26s remaining
+  Trial 721 | random_forest        | Score=0.8242 | [0.2s] | ~26s remaining
+  Trial 722 | lightgbm             | Score=0.7597 | [0.2s] | ~26s remaining
+  Trial 723 | lightgbm             | Score=0.8450 | [0.1s] | ~26s remaining
+  Trial 724 | lightgbm             | Score=0.8443 | [0.1s] | ~25s remaining
+  Trial 725 | lightgbm             | Score=0.8450 | [0.1s] | ~25s remaining
+  Trial 726 | lightgbm             | Score=0.8316 | [0.1s] | ~25s remaining
+  Trial 727 | lightgbm             | Score=0.8277 | [0.3s] | ~25s remaining
+  Trial 728 | lightgbm             | Score=0.8242 | [0.1s] | ~25s remaining
+  Trial 729 | lightgbm             | Score=0.8443 | [0.1s] | ~25s remaining
+  Trial 730 | xgboost              | Score=0.8249 | [0.1s] | ~25s remaining
+  Trial 731 | lightgbm             | Score=0.8287 | [0.3s] | ~24s remaining
+  Trial 732 | lightgbm             | Score=0.8383 | [0.1s] | ~24s remaining
+  Trial 733 | lightgbm             | Score=0.8244 | [0.3s] | ~24s remaining
+  Trial 734 | lightgbm             | Score=0.8383 | [0.1s] | ~24s remaining
+  Trial 735 | lightgbm             | Score=0.8261 | [0.4s] | ~23s remaining
+  Trial 736 | lightgbm             | Score=0.8510 | [0.1s] | ~23s remaining
+  Trial 737 | lightgbm             | Score=0.8450 | [0.1s] | ~23s remaining
+  Trial 738 | lightgbm             | Score=0.8260 | [0.7s] | ~23s remaining
+  Trial 739 | lightgbm             | Score=0.8346 | [0.5s] | ~22s remaining  <- new best
+  Trial 740 | logistic_regression  | Score=0.7317 | [0.0s] | ~22s remaining
+  Trial 741 | lightgbm             | Score=0.8234 | [0.4s] | ~22s remaining
+  Trial 742 | lightgbm             | Score=0.8456 | [0.2s] | ~22s remaining
+  Trial 743 | lightgbm             | Score=0.8383 | [0.1s] | ~21s remaining
+  Trial 744 | lightgbm             | Score=0.8383 | [0.1s] | ~21s remaining
+  Trial 745 | lightgbm             | Score=0.8276 | [0.5s] | ~21s remaining
+  Trial 746 | random_forest        | Score=0.8175 | [0.5s] | ~20s remaining
+  Trial 747 | lightgbm             | Score=0.8300 | [0.5s] | ~20s remaining
+  Trial 748 | lightgbm             | Score=0.8383 | [0.1s] | ~20s remaining
+  Trial 749 | lightgbm             | Score=0.8376 | [0.1s] | ~19s remaining
+  Trial 750 | lightgbm             | Score=0.8318 | [0.5s] | ~19s remaining
+  Trial 751 | lightgbm             | Score=0.8263 | [0.5s] | ~19s remaining
+  Trial 752 | lightgbm             | Score=0.8264 | [0.5s] | ~18s remaining
+  Trial 753 | lightgbm             | Score=0.8450 | [0.2s] | ~18s remaining
+  Trial 754 | lightgbm             | Score=0.8109 | [0.1s] | ~18s remaining
+  Trial 755 | xgboost              | Score=0.8206 | [0.1s] | ~18s remaining
+  Trial 756 | lightgbm             | Score=0.8450 | [0.2s] | ~17s remaining
+  Trial 757 | lightgbm             | Score=0.8309 | [0.1s] | ~17s remaining
+  Trial 758 | lightgbm             | Score=0.8233 | [0.6s] | ~17s remaining
+  Trial 759 | lightgbm             | Score=0.8383 | [0.1s] | ~17s remaining
+  Trial 760 | lightgbm             | Score=0.8264 | [0.5s] | ~16s remaining
+  Trial 761 | lightgbm             | Score=0.8262 | [0.4s] | ~16s remaining
+  Trial 762 | lightgbm             | Score=0.8309 | [0.2s] | ~15s remaining
+  Trial 763 | lightgbm             | Score=0.8262 | [0.5s] | ~15s remaining
+  -> Time budget nearly exhausted — wrapping up...
+  Trial 764 | lightgbm             | Score=0.8316 | [0.1s] | ~15s remaining
+  Trial 765 | logistic_regression  | Score=0.7836 | [0.0s] | ~15s remaining
+  Trial 766 | lightgbm             | Score=0.8376 | [0.2s] | ~15s remaining
+  Trial 767 | lightgbm             | Score=0.8253 | [0.6s] | ~14s remaining
+  Trial 768 | lightgbm             | Score=0.8443 | [0.3s] | ~14s remaining
+  Trial 769 | lightgbm             | Score=0.8389 | [0.1s] | ~14s remaining
+  Trial 770 | lightgbm             | Score=0.7919 | [0.1s] | ~13s remaining
+  Trial 771 | random_forest        | Score=0.8316 | [0.7s] | ~13s remaining
+  Trial 772 | lightgbm             | Score=0.8175 | [0.1s] | ~13s remaining
+  Trial 773 | lightgbm             | Score=0.8383 | [0.1s] | ~12s remaining
+  Trial 774 | lightgbm             | Score=0.8450 | [0.1s] | ~12s remaining
+  Trial 775 | lightgbm             | Score=0.8383 | [0.1s] | ~12s remaining
+  Trial 776 | lightgbm             | Score=0.8450 | [0.1s] | ~12s remaining
+  Trial 777 | lightgbm             | Score=0.8383 | [0.1s] | ~12s remaining
+  Trial 778 | lightgbm             | Score=0.8264 | [0.6s] | ~11s remaining
+  Trial 779 | lightgbm             | Score=0.8510 | [0.1s] | ~11s remaining
+  Trial 780 | lightgbm             | Score=0.8139 | [0.1s] | ~11s remaining
+  Trial 781 | xgboost              | Score=0.8249 | [0.2s] | ~11s remaining
+  Trial 782 | lightgbm             | Score=0.8249 | [0.1s] | ~11s remaining
+  Trial 783 | lightgbm             | Score=0.8309 | [0.2s] | ~11s remaining
+  Trial 784 | lightgbm             | Score=0.8450 | [0.1s] | ~10s remaining
+  Trial 785 | lightgbm             | Score=0.8316 | [0.1s] | ~10s remaining
+  Trial 786 | lightgbm             | Score=0.8383 | [0.1s] | ~10s remaining
+  Trial 787 | lightgbm             | Score=0.8450 | [0.2s] | ~10s remaining
+  Trial 788 | lightgbm             | Score=0.8450 | [0.1s] | ~10s remaining
+  Trial 789 | lightgbm             | Score=0.8319 | [0.6s] | ~9s remaining
+  Trial 790 | logistic_regression  | Score=0.7836 | [0.0s] | ~9s remaining
+  Trial 791 | lightgbm             | Score=0.8101 | [0.1s] | ~9s remaining
+  Trial 792 | lightgbm             | Score=0.8309 | [0.2s] | ~9s remaining
+  Trial 793 | lightgbm             | Score=0.8251 | [0.5s] | ~9s remaining
+  Trial 794 | lightgbm             | Score=0.8443 | [0.1s] | ~8s remaining
+  Trial 795 | lightgbm             | Score=0.8383 | [0.1s] | ~8s remaining
+  Trial 796 | lightgbm             | Score=0.8304 | [0.6s] | ~8s remaining
+  Trial 797 | random_forest        | Score=0.8168 | [1.0s] | ~7s remaining
+  Trial 798 | lightgbm             | Score=0.8443 | [0.2s] | ~6s remaining
+  Trial 799 | lightgbm             | Score=0.8450 | [0.2s] | ~6s remaining
+  Trial 800 | lightgbm             | Score=0.8316 | [0.1s] | ~6s remaining
+  Trial 801 | lightgbm             | Score=0.8251 | [0.7s] | ~5s remaining
+  Trial 802 | lightgbm             | Score=0.8443 | [0.2s] | ~5s remaining
+  Trial 803 | lightgbm             | Score=0.8389 | [0.1s] | ~5s remaining
+  Trial 804 | lightgbm             | Score=0.8376 | [0.1s] | ~5s remaining
+  Trial 805 | lightgbm             | Score=0.8018 | [0.1s] | ~5s remaining
+  Trial 806 | lightgbm             | Score=0.8376 | [0.2s] | ~5s remaining
+  Trial 807 | xgboost              | Score=0.8456 | [0.2s] | ~4s remaining
+  Trial 808 | lightgbm             | Score=0.8266 | [0.6s] | ~4s remaining
+  Trial 809 | lightgbm             | Score=0.8443 | [0.2s] | ~4s remaining
+  Trial 810 | lightgbm             | Score=0.8383 | [0.1s] | ~4s remaining
+  Trial 811 | lightgbm             | Score=0.8376 | [0.1s] | ~3s remaining
+  Trial 812 | lightgbm             | Score=0.8383 | [0.1s] | ~3s remaining
+  Trial 813 | lightgbm             | Score=0.8246 | [0.4s] | ~3s remaining
+  Trial 814 | lightgbm             | Score=0.8279 | [0.5s] | ~2s remaining
+  Trial 815 | lightgbm             | Score=0.8249 | [0.5s] | ~2s remaining
+  Trial 816 | logistic_regression  | Score=0.7894 | [0.0s] | ~2s remaining
+  Trial 817 | lightgbm             | Score=0.8018 | [0.2s] | ~2s remaining
+  Trial 818 | lightgbm             | Score=0.8316 | [0.1s] | ~2s remaining
+  Trial 819 | lightgbm             | Score=0.8443 | [0.1s] | ~1s remaining
+  Trial 820 | lightgbm             | Score=0.8306 | [0.5s] | ~1s remaining
+  Trial 821 | lightgbm             | Score=0.8239 | [0.3s] | ~1s remaining
+  Trial 822 | random_forest        | Score=0.8309 | [0.5s] | ~0s remaining
+  Trial 823 | lightgbm             | Score=0.8302 | [0.3s] | ~-0s remaining
+
+  -> Found best model: lightgbm (Score: 0.8346) in 120.2s
+  -> Retraining optimized parameters strictly across entire dataset...
+  [+] [OPTUNA TUNING] completed in 120.38s
+
+[EVALUATION]
+
+[EVALUATION]
+  -> F1 (weighted) : 0.8234
+  -> ROC-AUC       : 0.8753
+  -> Generating Model Explainability (SHAP)...
+  [+] [EVALUATION] completed in 0.98s
+
+ARTIFACT PRESERVATION
+  -> Joblib targets generated for API mapping.
+  [+] ARTIFACT PRESERVATION completed in 0.22s
+
+[DEPLOYMENT]
+Training complete. How would you like to save the model?
+  (1) Save as joblib file
+  (2) Spin up FastAPI endpoint
+  (3) Both
+  -> Your choice:   [+] Model artifacts already staged at outputs/models/
+
+[REPORT]
+  Model         : lightgbm
+  Problem Type  : CLASSIFICATION
+  F1 Weighted   : 0.8234
+  ROC-AUC       : 0.8753
+
+  Limitations (1):
+    1. Small dataset (891 rows). Out-of-sample performance bounds may vary.
+
+  Model saved   : outputs\models\model.joblib
+
+[+] Pipeline execution completed successfully in 129.50s.

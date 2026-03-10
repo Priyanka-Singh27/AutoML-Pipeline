@@ -10,7 +10,7 @@ from core.headers import Section
 
 try:
     from weasyprint import HTML
-except ImportError:
+except (ImportError, OSError):
     HTML = None
 
 def generate_terminal_report(state, args):
