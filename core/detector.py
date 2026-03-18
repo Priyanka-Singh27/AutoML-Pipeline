@@ -189,10 +189,17 @@ def run_detector(audit, df=None, force_type=None, _auto_input=None):
         if force_type not in ['classification', 'regression', 'clustering']:
             raise ValueError(f"Invalid force_type: {force_type}")
         detection['problem_type'] = force_type
-        detection['detection_method'] = 'user_flag'
+        detection['detection_method'] = 'user_override'
         detection['confidence'] = 'high'
+        
+        if force_type == 'classification':
+            unique_classes = int(n_unique)
+            detection['num_classes'] = unique_classes
+            detection['classification_subtype'] = 'binary' if unique_classes == 2 else 'multiclass'
+            detection['metrics_averaging'] = 'binary' if unique_classes == 2 else 'weighted'
+
         narrate(f"  -> Problem type inferred as: {force_type.capitalize()} (User override)")
-        # Do not return here. Must compute subtypes at the bottom.
+        return detection
 
     # 2. Check for Clustering (No target)
     elif target is None:

@@ -186,7 +186,7 @@ def _calculate_consensus_importance(X_train, y_train, detection, base_random_sta
         if problem_type == 'classification':
             obj = 'binary' if n_classes == 2 else 'multiclass'
             probe = LGBMClassifier(n_estimators=50, random_state=seed, verbosity=-1, objective=obj, 
-                                   num_class=n_classes if n_classes > 2 else None)
+                                   num_class=n_classes if (n_classes is not None and n_classes > 2) else None)
         else:
             probe = LGBMRegressor(n_estimators=50, random_state=seed, verbosity=-1)
             

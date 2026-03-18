@@ -1,0 +1,897 @@
+
+-----
+
+WeasyPrint could not import some external libraries. Please carefully follow the installation steps before reporting an issue:
+https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#installation
+https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#troubleshooting 
+
+-----
+
+===========================================
+ AUTO-ML PIPELINE INITIATED
+===========================================
+Dataset      : data/telco_churn.csv
+Random State : 42
+Time Budget  : 120s
+
+[FILE VALIDATION]
+  -> Loading dataset: data/telco_churn.csv
+  -> Shape: 7043 rows, 21 columns
+  [+] [FILE VALIDATION] completed in 0.02s
+
+[DATA AUDIT]
+
+[DATA AUDIT]
+  -> Profiling 7043 rows and 21 columns
+  [!] 'customerID' looks like an ID column (Drop candidate)
+  -> Found 2 numeric, 17 categorical features.
+  -> Audit complete.
+  [+] [DATA AUDIT] completed in 0.70s
+
+[TARGET DETECTION]
+
+[DETECTION]
+  -> Problem type inferred as: Classification (User override)
+  -> Total Classification score : 0.0
+  -> Total Regression score     : 0.0
+
+  [!] Ambiguous Target Detected: 'Churn'
+  -> Evidence for Classification:
+     [+] Low cardinality (2 unique values)
+     [+] Regular intervals between values (gap var: 0.00)
+     [+] Concentrated value distribution (entropy: 0.00)
+  -> Evidence for Regression:
+
+  -> Is 'Churn' a categorical label or a numeric metric?
+     (1) Classification - predict which category/label
+     (2) Regression     - predict the exact numeric scale
+  -> Your choice (auto): 1
+  -> Problem type finalized as: Classification (high confidence)
+
+  [+] [TARGET DETECTION] completed in 0.00s
+
+PREPROCESSING
+
+[PREPROCESSING]
+  -> Dropping structural pathologies: ['customerID']
+  -> 'Churn': Detected string target constraints for classification. Applying LabelEncoder.
+  -> 'TotalCharges': coerced masquerading string-numeric column to float
+  -> 'TotalCharges': grouped 6530 rare categories (<1%) into '__other__'
+  -> 'SeniorCitizen' : Boolean -> int (0/1)
+  -> Mapping 3 numerical features (StandardScaler)
+  -> 'gender' (2 unique) : OneHotEncoder
+  -> 'Partner' (2 unique) : OneHotEncoder
+  -> 'Dependents' (2 unique) : OneHotEncoder
+  -> 'PhoneService' (2 unique) : OneHotEncoder
+  -> 'MultipleLines' (3 unique) : OneHotEncoder
+  -> 'InternetService' (3 unique) : OneHotEncoder
+  -> 'OnlineSecurity' (3 unique) : OneHotEncoder
+  -> 'OnlineBackup' (3 unique) : OneHotEncoder
+  -> 'DeviceProtection' (3 unique) : OneHotEncoder
+  -> 'TechSupport' (3 unique) : OneHotEncoder
+  -> 'StreamingTV' (3 unique) : OneHotEncoder
+  -> 'StreamingMovies' (3 unique) : OneHotEncoder
+  -> 'Contract' (3 unique) : OneHotEncoder
+  -> 'PaperlessBilling' (2 unique) : OneHotEncoder
+  -> 'PaymentMethod' (4 unique) : OneHotEncoder
+  -> 'TotalCharges' (1 unique) : OneHotEncoder
+  -> Fitting Scikit-Learn Processor...
+  [+] Preprocessing Complete: 46 resulting dimensions.
+  -> Preprocessed shape: 7043 rows, 46 columns
+  [+] PREPROCESSING completed in 1.10s
+
+[FEATURE SELECTION]
+
+[FEATURE SELECTION]
+  -> Level 1 | Dropping 1 low variance columns: ['TotalCharges___other__']
+  -> Level 2 | Calculating Consensus Importance (3 seeds)
+  -> Level 4 | Dropping 16 weak features (SHAP < 1% of top): ['DeviceProtection_No internet service', 'StreamingTV_No internet service', 'Partner_No', 'OnlineSecurity_Yes', 'OnlineBackup_No internet service', 'PaymentMethod_Credit card (automatic)', 'gender_Male', 'Dependents_Yes', 'InternetService_No', 'MultipleLines_No phone service', 'TechSupport_No internet service', 'OnlineSecurity_No internet service', 'PaperlessBilling_Yes', 'PhoneService_Yes', 'DeviceProtection_Yes', 'StreamingMovies_No internet service']
+  -> Features remaining: 28 / 45
+  -> Level 5 | Post-Selection Validation (3-Fold CV)
+  -> Validation: F1 remained stable (0.7902 -> 0.7910)
+  [+] [FEATURE SELECTION] completed in 9.04s
+
+[OPTUNA TUNING]
+
+[OPTUNA TUNING]
+  Trial   0 | xgboost              | Score=0.7176 | [1.4s] | ~119s remaining  <- new best
+  Trial   1 | xgboost              | Score=0.6664 | [0.9s] | ~118s remaining
+  Trial   2 | lightgbm             | Score=0.7896 | [0.7s] | ~117s remaining  <- new best
+  Trial   3 | svc                  | Score=0.7823 | [4.2s] | ~113s remaining
+  Trial   4 | lightgbm             | Score=0.6223 | [0.6s] | ~112s remaining
+  Trial   5 | xgboost              | Score=0.7508 | [3.0s] | ~109s remaining
+  Trial   6 | xgboost              | Score=0.6907 | [0.1s] | ~109s remaining
+  Trial   7 | logistic_regression  | Score=0.7948 | [0.1s] | ~109s remaining  <- new best
+  Trial   8 | logistic_regression  | Score=0.7944 | [0.1s] | ~109s remaining
+  Trial   9 | svc                  | Score=0.7867 | [3.5s] | ~105s remaining
+  Trial  10 | logistic_regression  | Score=0.7957 | [0.1s] | ~105s remaining  <- new best
+  Trial  11 | logistic_regression  | Score=0.7949 | [0.1s] | ~105s remaining
+  Trial  12 | random_forest        | Score=0.7316 | [0.6s] | ~105s remaining
+  Trial  13 | logistic_regression  | Score=0.6223 | [0.0s] | ~104s remaining
+  Trial  14 | logistic_regression  | Score=0.7949 | [0.1s] | ~104s remaining
+  Trial  15 | logistic_regression  | Score=0.7941 | [0.1s] | ~104s remaining
+  Trial  16 | random_forest        | Score=0.7918 | [0.8s] | ~103s remaining
+  Trial  17 | logistic_regression  | Score=0.7782 | [0.0s] | ~103s remaining
+  Trial  18 | logistic_regression  | Score=0.7948 | [0.1s] | ~103s remaining
+  Trial  19 | logistic_regression  | Score=0.7940 | [0.1s] | ~103s remaining
+  Trial  20 | lightgbm             | Score=0.7636 | [0.8s] | ~102s remaining
+  Trial  21 | logistic_regression  | Score=0.7949 | [0.1s] | ~102s remaining
+  Trial  22 | logistic_regression  | Score=0.7949 | [0.1s] | ~102s remaining
+  Trial  23 | logistic_regression  | Score=0.7948 | [0.1s] | ~102s remaining
+  Trial  24 | logistic_regression  | Score=0.7950 | [0.1s] | ~102s remaining
+  Trial  25 | svc                  | Score=0.6223 | [0.7s] | ~101s remaining
+  Trial  26 | random_forest        | Score=0.7819 | [0.3s] | ~101s remaining
+  Trial  27 | logistic_regression  | Score=0.7946 | [0.1s] | ~101s remaining
+  Trial  28 | logistic_regression  | Score=0.7903 | [0.0s] | ~101s remaining
+  Trial  29 | logistic_regression  | Score=0.7947 | [0.1s] | ~101s remaining
+  Trial  30 | random_forest        | Score=0.7819 | [0.7s] | ~100s remaining
+  Trial  31 | logistic_regression  | Score=0.7949 | [0.1s] | ~100s remaining
+  Trial  32 | logistic_regression  | Score=0.7950 | [0.1s] | ~100s remaining
+  Trial  33 | xgboost              | Score=0.7792 | [0.1s] | ~100s remaining
+  Trial  34 | lightgbm             | Score=0.6223 | [0.1s] | ~100s remaining
+  Trial  35 | logistic_regression  | Score=0.7948 | [0.1s] | ~99s remaining
+  Trial  36 | svc                  | Score=0.6223 | [0.7s] | ~99s remaining
+  Trial  37 | xgboost              | Score=0.7714 | [0.3s] | ~98s remaining
+  Trial  38 | lightgbm             | Score=0.7789 | [0.7s] | ~98s remaining
+  Trial  39 | logistic_regression  | Score=0.7945 | [0.1s] | ~98s remaining
+  Trial  40 | logistic_regression  | Score=0.7950 | [0.1s] | ~97s remaining
+  Trial  41 | logistic_regression  | Score=0.7950 | [0.1s] | ~97s remaining
+  Trial  42 | logistic_regression  | Score=0.7950 | [0.1s] | ~97s remaining
+  Trial  43 | logistic_regression  | Score=0.7943 | [0.1s] | ~97s remaining
+  Trial  44 | logistic_regression  | Score=0.7950 | [0.1s] | ~97s remaining
+  Trial  45 | svc                  | Score=0.7638 | [0.7s] | ~96s remaining
+  Trial  46 | xgboost              | Score=0.7279 | [0.1s] | ~96s remaining
+  Trial  47 | logistic_regression  | Score=0.7950 | [0.1s] | ~96s remaining
+  Trial  48 | logistic_regression  | Score=0.7950 | [0.1s] | ~96s remaining
+  Trial  49 | logistic_regression  | Score=0.7913 | [0.0s] | ~96s remaining
+  Trial  50 | logistic_regression  | Score=0.7943 | [0.1s] | ~96s remaining
+  Trial  51 | logistic_regression  | Score=0.7947 | [0.1s] | ~96s remaining
+  Trial  52 | logistic_regression  | Score=0.7950 | [0.1s] | ~95s remaining
+  Trial  53 | logistic_regression  | Score=0.7957 | [0.1s] | ~95s remaining  <- new best
+  Trial  54 | logistic_regression  | Score=0.7956 | [0.1s] | ~95s remaining
+  Trial  55 | lightgbm             | Score=0.7729 | [0.3s] | ~95s remaining
+  Trial  56 | random_forest        | Score=0.7337 | [0.4s] | ~94s remaining
+  Trial  57 | logistic_regression  | Score=0.7957 | [0.1s] | ~94s remaining  <- new best
+  Trial  58 | logistic_regression  | Score=0.7960 | [0.1s] | ~94s remaining  <- new best
+  Trial  59 | logistic_regression  | Score=0.7956 | [0.1s] | ~94s remaining
+  Trial  60 | svc                  | Score=0.7625 | [0.8s] | ~93s remaining
+  Trial  61 | logistic_regression  | Score=0.7962 | [0.1s] | ~93s remaining  <- new best
+  Trial  62 | logistic_regression  | Score=0.7956 | [0.1s] | ~93s remaining
+  Trial  63 | logistic_regression  | Score=0.7916 | [0.0s] | ~93s remaining
+  Trial  64 | logistic_regression  | Score=0.6223 | [0.0s] | ~93s remaining
+  Trial  65 | logistic_regression  | Score=0.7916 | [0.0s] | ~93s remaining
+  Trial  66 | logistic_regression  | Score=0.7957 | [0.1s] | ~93s remaining
+  Trial  67 | logistic_regression  | Score=0.7916 | [0.0s] | ~93s remaining
+  Trial  68 | random_forest        | Score=0.7814 | [0.2s] | ~93s remaining
+  Trial  69 | xgboost              | Score=0.7841 | [0.4s] | ~92s remaining
+  Trial  70 | logistic_regression  | Score=0.7950 | [0.1s] | ~92s remaining
+  Trial  71 | logistic_regression  | Score=0.7959 | [0.1s] | ~92s remaining
+  Trial  72 | logistic_regression  | Score=0.7541 | [0.0s] | ~92s remaining
+  Trial  73 | logistic_regression  | Score=0.7956 | [0.1s] | ~92s remaining
+  Trial  74 | logistic_regression  | Score=0.7916 | [0.0s] | ~92s remaining
+  Trial  75 | logistic_regression  | Score=0.7956 | [0.1s] | ~92s remaining
+  Trial  76 | lightgbm             | Score=0.7852 | [0.3s] | ~91s remaining
+  Trial  77 | logistic_regression  | Score=0.7948 | [0.1s] | ~91s remaining
+  Trial  78 | logistic_regression  | Score=0.7916 | [0.0s] | ~91s remaining
+  Trial  79 | logistic_regression  | Score=0.7935 | [0.0s] | ~91s remaining
+  Trial  80 | svc                  | Score=0.7542 | [0.7s] | ~91s remaining
+  Trial  81 | logistic_regression  | Score=0.7956 | [0.1s] | ~90s remaining
+  Trial  82 | logistic_regression  | Score=0.7956 | [0.1s] | ~90s remaining
+  Trial  83 | logistic_regression  | Score=0.7916 | [0.0s] | ~90s remaining
+  Trial  84 | logistic_regression  | Score=0.7895 | [0.0s] | ~90s remaining
+  Trial  85 | logistic_regression  | Score=0.7947 | [0.1s] | ~90s remaining
+  Trial  86 | logistic_regression  | Score=0.7956 | [0.1s] | ~90s remaining
+  Trial  87 | xgboost              | Score=0.7832 | [0.2s] | ~90s remaining
+  Trial  88 | logistic_regression  | Score=0.7916 | [0.0s] | ~90s remaining
+  Trial  89 | random_forest        | Score=0.7850 | [0.4s] | ~89s remaining
+  Trial  90 | logistic_regression  | Score=0.7935 | [0.0s] | ~89s remaining
+  Trial  91 | logistic_regression  | Score=0.7952 | [0.1s] | ~89s remaining
+  Trial  92 | logistic_regression  | Score=0.7956 | [0.1s] | ~89s remaining
+  Trial  93 | logistic_regression  | Score=0.7916 | [0.0s] | ~89s remaining
+  Trial  94 | logistic_regression  | Score=0.7952 | [0.1s] | ~89s remaining
+  Trial  95 | logistic_regression  | Score=0.7916 | [0.0s] | ~89s remaining
+  Trial  96 | logistic_regression  | Score=0.7947 | [0.1s] | ~89s remaining
+  Trial  97 | lightgbm             | Score=0.6880 | [0.3s] | ~88s remaining
+  Trial  98 | logistic_regression  | Score=0.7935 | [0.0s] | ~88s remaining
+  Trial  99 | logistic_regression  | Score=0.7952 | [0.1s] | ~88s remaining
+  Trial 100 | svc                  | Score=0.7805 | [0.7s] | ~88s remaining
+  Trial 101 | logistic_regression  | Score=0.7958 | [0.1s] | ~87s remaining
+  Trial 102 | logistic_regression  | Score=0.7950 | [0.1s] | ~87s remaining
+  Trial 103 | logistic_regression  | Score=0.7916 | [0.0s] | ~87s remaining
+  Trial 104 | logistic_regression  | Score=0.7948 | [0.1s] | ~87s remaining
+  Trial 105 | logistic_regression  | Score=0.7907 | [0.0s] | ~87s remaining
+  Trial 106 | logistic_regression  | Score=0.7916 | [0.0s] | ~87s remaining
+  Trial 107 | logistic_regression  | Score=0.7950 | [0.1s] | ~87s remaining
+  Trial 108 | xgboost              | Score=0.6223 | [0.4s] | ~87s remaining
+  Trial 109 | logistic_regression  | Score=0.7957 | [0.1s] | ~86s remaining
+  Trial 110 | random_forest        | Score=0.7763 | [0.3s] | ~86s remaining
+  Trial 111 | logistic_regression  | Score=0.7957 | [0.1s] | ~86s remaining
+  Trial 112 | logistic_regression  | Score=0.7916 | [0.0s] | ~86s remaining
+  Trial 113 | logistic_regression  | Score=0.7916 | [0.0s] | ~86s remaining
+  Trial 114 | logistic_regression  | Score=0.7956 | [0.1s] | ~86s remaining
+  Trial 115 | logistic_regression  | Score=0.7950 | [0.1s] | ~86s remaining
+  Trial 116 | logistic_regression  | Score=0.7947 | [0.2s] | ~86s remaining
+  Trial 117 | logistic_regression  | Score=0.7946 | [0.1s] | ~85s remaining
+  Trial 118 | logistic_regression  | Score=0.7935 | [0.0s] | ~85s remaining
+  Trial 119 | lightgbm             | Score=0.7806 | [0.5s] | ~85s remaining
+  Trial 120 | logistic_regression  | Score=0.7958 | [0.1s] | ~85s remaining
+  Trial 121 | logistic_regression  | Score=0.7956 | [0.1s] | ~85s remaining
+  Trial 122 | logistic_regression  | Score=0.7916 | [0.0s] | ~85s remaining
+  Trial 123 | logistic_regression  | Score=0.7952 | [0.1s] | ~85s remaining
+  Trial 124 | logistic_regression  | Score=0.7957 | [0.1s] | ~84s remaining
+  Trial 125 | logistic_regression  | Score=0.7916 | [0.0s] | ~84s remaining
+  Trial 126 | logistic_regression  | Score=0.7192 | [0.0s] | ~84s remaining
+  Trial 127 | logistic_regression  | Score=0.7916 | [0.0s] | ~84s remaining
+  Trial 128 | logistic_regression  | Score=0.7957 | [0.1s] | ~84s remaining
+  Trial 129 | svc                  | Score=0.7089 | [0.7s] | ~83s remaining
+  Trial 130 | logistic_regression  | Score=0.7956 | [0.1s] | ~83s remaining
+  Trial 131 | logistic_regression  | Score=0.7956 | [0.1s] | ~83s remaining
+  Trial 132 | logistic_regression  | Score=0.7950 | [0.1s] | ~83s remaining
+  Trial 133 | logistic_regression  | Score=0.7916 | [0.0s] | ~83s remaining
+  Trial 134 | logistic_regression  | Score=0.7916 | [0.0s] | ~83s remaining
+  Trial 135 | logistic_regression  | Score=0.7950 | [0.1s] | ~83s remaining
+  Trial 136 | logistic_regression  | Score=0.7956 | [0.1s] | ~83s remaining
+  Trial 137 | logistic_regression  | Score=0.7935 | [0.0s] | ~83s remaining
+  Trial 138 | xgboost              | Score=0.7895 | [0.1s] | ~83s remaining
+  Trial 139 | logistic_regression  | Score=0.7962 | [0.1s] | ~83s remaining  <- new best
+  Trial 140 | random_forest        | Score=0.7850 | [0.5s] | ~82s remaining
+  Trial 141 | logistic_regression  | Score=0.7957 | [0.2s] | ~82s remaining
+  Trial 142 | logistic_regression  | Score=0.7916 | [0.0s] | ~82s remaining
+  Trial 143 | logistic_regression  | Score=0.7916 | [0.0s] | ~82s remaining
+  Trial 144 | logistic_regression  | Score=0.7950 | [0.1s] | ~82s remaining
+  Trial 145 | logistic_regression  | Score=0.7916 | [0.0s] | ~82s remaining
+  Trial 146 | logistic_regression  | Score=0.7957 | [0.2s] | ~81s remaining
+  Trial 147 | logistic_regression  | Score=0.7950 | [0.1s] | ~81s remaining
+  Trial 148 | logistic_regression  | Score=0.7916 | [0.0s] | ~81s remaining
+  Trial 149 | lightgbm             | Score=0.7920 | [0.1s] | ~81s remaining
+  Trial 150 | logistic_regression  | Score=0.7916 | [0.0s] | ~81s remaining
+  Trial 151 | logistic_regression  | Score=0.7956 | [0.1s] | ~81s remaining
+  Trial 152 | logistic_regression  | Score=0.7950 | [0.1s] | ~81s remaining
+  Trial 153 | logistic_regression  | Score=0.7957 | [0.1s] | ~81s remaining
+  Trial 154 | logistic_regression  | Score=0.7950 | [0.1s] | ~81s remaining
+  Trial 155 | logistic_regression  | Score=0.7916 | [0.0s] | ~81s remaining
+  Trial 156 | logistic_regression  | Score=0.7958 | [0.1s] | ~81s remaining
+  Trial 157 | logistic_regression  | Score=0.7916 | [0.0s] | ~81s remaining
+  Trial 158 | logistic_regression  | Score=0.7950 | [0.1s] | ~80s remaining
+  Trial 159 | svc                  | Score=0.7899 | [0.7s] | ~80s remaining
+  Trial 160 | logistic_regression  | Score=0.7952 | [0.1s] | ~80s remaining
+  Trial 161 | logistic_regression  | Score=0.7957 | [0.1s] | ~79s remaining
+  Trial 162 | logistic_regression  | Score=0.7916 | [0.0s] | ~79s remaining
+  Trial 163 | logistic_regression  | Score=0.7956 | [0.1s] | ~79s remaining
+  Trial 164 | logistic_regression  | Score=0.7950 | [0.1s] | ~79s remaining
+  Trial 165 | logistic_regression  | Score=0.7916 | [0.0s] | ~79s remaining
+  Trial 166 | logistic_regression  | Score=0.7950 | [0.1s] | ~79s remaining
+  Trial 167 | logistic_regression  | Score=0.7884 | [0.0s] | ~79s remaining
+  Trial 168 | logistic_regression  | Score=0.7916 | [0.0s] | ~79s remaining
+  Trial 169 | logistic_regression  | Score=0.7958 | [0.1s] | ~79s remaining
+  Trial 170 | xgboost              | Score=0.7676 | [0.4s] | ~79s remaining
+  Trial 171 | logistic_regression  | Score=0.7958 | [0.1s] | ~78s remaining
+  Trial 172 | logistic_regression  | Score=0.7950 | [0.1s] | ~78s remaining
+  Trial 173 | logistic_regression  | Score=0.7950 | [0.1s] | ~78s remaining
+  Trial 174 | logistic_regression  | Score=0.7916 | [0.0s] | ~78s remaining
+  Trial 175 | random_forest        | Score=0.7785 | [0.3s] | ~78s remaining
+  Trial 176 | logistic_regression  | Score=0.7956 | [0.1s] | ~78s remaining
+  Trial 177 | logistic_regression  | Score=0.7916 | [0.0s] | ~78s remaining
+  Trial 178 | logistic_regression  | Score=0.7916 | [0.0s] | ~78s remaining
+  Trial 179 | logistic_regression  | Score=0.7952 | [0.1s] | ~78s remaining
+  Trial 180 | logistic_regression  | Score=0.7957 | [0.1s] | ~77s remaining
+  Trial 181 | logistic_regression  | Score=0.7958 | [0.1s] | ~77s remaining
+  Trial 182 | logistic_regression  | Score=0.7958 | [0.1s] | ~77s remaining
+  Trial 183 | logistic_regression  | Score=0.7958 | [0.1s] | ~77s remaining
+  Trial 184 | logistic_regression  | Score=0.7956 | [0.1s] | ~77s remaining
+  Trial 185 | logistic_regression  | Score=0.7947 | [0.1s] | ~77s remaining
+  Trial 186 | lightgbm             | Score=0.7357 | [0.2s] | ~77s remaining
+  Trial 187 | logistic_regression  | Score=0.7916 | [0.0s] | ~77s remaining
+  Trial 188 | logistic_regression  | Score=0.7950 | [0.1s] | ~76s remaining
+  Trial 189 | logistic_regression  | Score=0.7952 | [0.1s] | ~76s remaining
+  Trial 190 | logistic_regression  | Score=0.7916 | [0.0s] | ~76s remaining
+  Trial 191 | logistic_regression  | Score=0.7956 | [0.1s] | ~76s remaining
+  Trial 192 | logistic_regression  | Score=0.7956 | [0.1s] | ~76s remaining
+  Trial 193 | logistic_regression  | Score=0.7916 | [0.0s] | ~76s remaining
+  Trial 194 | logistic_regression  | Score=0.7950 | [0.1s] | ~76s remaining
+  Trial 195 | logistic_regression  | Score=0.7916 | [0.0s] | ~76s remaining
+  Trial 196 | logistic_regression  | Score=0.7927 | [0.0s] | ~76s remaining
+  Trial 197 | svc                  | Score=0.6223 | [0.7s] | ~75s remaining
+  Trial 198 | logistic_regression  | Score=0.7958 | [0.1s] | ~75s remaining
+  Trial 199 | logistic_regression  | Score=0.7947 | [0.1s] | ~75s remaining
+  Trial 200 | logistic_regression  | Score=0.7956 | [0.1s] | ~75s remaining
+  Trial 201 | logistic_regression  | Score=0.7956 | [0.1s] | ~75s remaining
+  Trial 202 | logistic_regression  | Score=0.7957 | [0.1s] | ~74s remaining
+  Trial 203 | logistic_regression  | Score=0.6223 | [0.0s] | ~74s remaining
+  Trial 204 | logistic_regression  | Score=0.7916 | [0.0s] | ~74s remaining
+  Trial 205 | logistic_regression  | Score=0.7907 | [0.0s] | ~74s remaining
+  Trial 206 | logistic_regression  | Score=0.7950 | [0.1s] | ~74s remaining
+  Trial 207 | logistic_regression  | Score=0.7956 | [0.1s] | ~74s remaining
+  Trial 208 | xgboost              | Score=0.7819 | [0.3s] | ~74s remaining
+  Trial 209 | logistic_regression  | Score=0.7916 | [0.0s] | ~74s remaining
+  Trial 210 | logistic_regression  | Score=0.7950 | [0.1s] | ~74s remaining
+  Trial 211 | logistic_regression  | Score=0.7957 | [0.1s] | ~74s remaining
+  Trial 212 | logistic_regression  | Score=0.7956 | [0.1s] | ~73s remaining
+  Trial 213 | logistic_regression  | Score=0.7913 | [0.0s] | ~73s remaining
+  Trial 214 | logistic_regression  | Score=0.7916 | [0.0s] | ~73s remaining
+  Trial 215 | random_forest        | Score=0.7819 | [0.2s] | ~73s remaining
+  Trial 216 | logistic_regression  | Score=0.7916 | [0.0s] | ~73s remaining
+  Trial 217 | logistic_regression  | Score=0.7956 | [0.1s] | ~73s remaining
+  Trial 218 | logistic_regression  | Score=0.7952 | [0.1s] | ~73s remaining
+  Trial 219 | logistic_regression  | Score=0.7958 | [0.1s] | ~73s remaining
+  Trial 220 | logistic_regression  | Score=0.7950 | [0.1s] | ~73s remaining
+  Trial 221 | logistic_regression  | Score=0.7958 | [0.1s] | ~73s remaining
+  Trial 222 | logistic_regression  | Score=0.7956 | [0.1s] | ~72s remaining
+  Trial 223 | logistic_regression  | Score=0.7916 | [0.0s] | ~72s remaining
+  Trial 224 | logistic_regression  | Score=0.7950 | [0.1s] | ~72s remaining
+  Trial 225 | logistic_regression  | Score=0.7916 | [0.0s] | ~72s remaining
+  Trial 226 | logistic_regression  | Score=0.7956 | [0.1s] | ~72s remaining
+  Trial 227 | logistic_regression  | Score=0.7916 | [0.0s] | ~72s remaining
+  Trial 228 | lightgbm             | Score=0.7872 | [0.3s] | ~72s remaining
+  Trial 229 | logistic_regression  | Score=0.7956 | [0.1s] | ~72s remaining
+  Trial 230 | logistic_regression  | Score=0.7962 | [0.1s] | ~72s remaining  <- new best
+  Trial 231 | logistic_regression  | Score=0.7916 | [0.0s] | ~72s remaining
+  Trial 232 | logistic_regression  | Score=0.7952 | [0.1s] | ~71s remaining
+  Trial 233 | logistic_regression  | Score=0.7956 | [0.1s] | ~71s remaining
+  Trial 234 | logistic_regression  | Score=0.7916 | [0.0s] | ~71s remaining
+  Trial 235 | logistic_regression  | Score=0.7849 | [0.0s] | ~71s remaining
+  Trial 236 | logistic_regression  | Score=0.7958 | [0.1s] | ~71s remaining
+  Trial 237 | logistic_regression  | Score=0.7950 | [0.1s] | ~71s remaining
+  Trial 238 | logistic_regression  | Score=0.7956 | [0.1s] | ~71s remaining
+  Trial 239 | svc                  | Score=0.7799 | [0.7s] | ~70s remaining
+  Trial 240 | logistic_regression  | Score=0.7916 | [0.0s] | ~70s remaining
+  Trial 241 | logistic_regression  | Score=0.7956 | [0.1s] | ~70s remaining
+  Trial 242 | logistic_regression  | Score=0.7950 | [0.1s] | ~70s remaining
+  Trial 243 | logistic_regression  | Score=0.7957 | [0.1s] | ~70s remaining
+  Trial 244 | logistic_regression  | Score=0.7916 | [0.0s] | ~70s remaining
+  Trial 245 | logistic_regression  | Score=0.7952 | [0.1s] | ~70s remaining
+  Trial 246 | logistic_regression  | Score=0.7916 | [0.0s] | ~70s remaining
+  Trial 247 | logistic_regression  | Score=0.7952 | [0.1s] | ~69s remaining
+  Trial 248 | logistic_regression  | Score=0.7956 | [0.1s] | ~69s remaining
+  Trial 249 | logistic_regression  | Score=0.7358 | [0.0s] | ~69s remaining
+  Trial 250 | logistic_regression  | Score=0.7916 | [0.0s] | ~69s remaining
+  Trial 251 | xgboost              | Score=0.6223 | [0.2s] | ~69s remaining
+  Trial 252 | logistic_regression  | Score=0.7952 | [0.1s] | ~69s remaining
+  Trial 253 | logistic_regression  | Score=0.7916 | [0.0s] | ~69s remaining
+  Trial 254 | random_forest        | Score=0.7879 | [0.4s] | ~69s remaining
+  Trial 255 | logistic_regression  | Score=0.7957 | [0.1s] | ~68s remaining
+  Trial 256 | logistic_regression  | Score=0.7948 | [0.1s] | ~68s remaining
+  Trial 257 | logistic_regression  | Score=0.7916 | [0.0s] | ~68s remaining
+  Trial 258 | logistic_regression  | Score=0.7950 | [0.1s] | ~68s remaining
+  Trial 259 | logistic_regression  | Score=0.7956 | [0.1s] | ~68s remaining
+  Trial 260 | logistic_regression  | Score=0.7916 | [0.0s] | ~68s remaining
+  Trial 261 | logistic_regression  | Score=0.7916 | [0.0s] | ~68s remaining
+  Trial 262 | lightgbm             | Score=0.7702 | [0.3s] | ~68s remaining
+  Trial 263 | logistic_regression  | Score=0.7956 | [0.1s] | ~68s remaining
+  Trial 264 | logistic_regression  | Score=0.7950 | [0.1s] | ~67s remaining
+  Trial 265 | logistic_regression  | Score=0.7950 | [0.1s] | ~67s remaining
+  Trial 266 | logistic_regression  | Score=0.7916 | [0.0s] | ~67s remaining
+  Trial 267 | logistic_regression  | Score=0.7956 | [0.1s] | ~67s remaining
+  Trial 268 | logistic_regression  | Score=0.7916 | [0.0s] | ~67s remaining
+  Trial 269 | logistic_regression  | Score=0.7957 | [0.1s] | ~67s remaining
+  Trial 270 | logistic_regression  | Score=0.7916 | [0.0s] | ~67s remaining
+  Trial 271 | svc                  | Score=0.6223 | [0.8s] | ~66s remaining
+  Trial 272 | logistic_regression  | Score=0.7950 | [0.1s] | ~66s remaining
+  Trial 273 | logistic_regression  | Score=0.7893 | [0.0s] | ~66s remaining
+  Trial 274 | logistic_regression  | Score=0.7916 | [0.0s] | ~66s remaining
+  Trial 275 | logistic_regression  | Score=0.7958 | [0.2s] | ~66s remaining
+  Trial 276 | logistic_regression  | Score=0.7947 | [0.1s] | ~66s remaining
+  Trial 277 | logistic_regression  | Score=0.7952 | [0.1s] | ~66s remaining
+  Trial 278 | xgboost              | Score=0.7774 | [0.3s] | ~65s remaining
+  Trial 279 | logistic_regression  | Score=0.7956 | [0.1s] | ~65s remaining
+  Trial 280 | logistic_regression  | Score=0.7916 | [0.0s] | ~65s remaining
+  Trial 281 | logistic_regression  | Score=0.7935 | [0.0s] | ~65s remaining
+  Trial 282 | logistic_regression  | Score=0.7950 | [0.1s] | ~65s remaining
+  Trial 283 | random_forest        | Score=0.7849 | [0.5s] | ~64s remaining
+  Trial 284 | logistic_regression  | Score=0.7956 | [0.1s] | ~64s remaining
+  Trial 285 | logistic_regression  | Score=0.7916 | [0.0s] | ~64s remaining
+  Trial 286 | logistic_regression  | Score=0.7927 | [0.0s] | ~64s remaining
+  Trial 287 | logistic_regression  | Score=0.7916 | [0.0s] | ~64s remaining
+  Trial 288 | logistic_regression  | Score=0.7956 | [0.1s] | ~64s remaining
+  Trial 289 | lightgbm             | Score=0.7807 | [0.2s] | ~64s remaining
+  Trial 290 | logistic_regression  | Score=0.7948 | [0.1s] | ~64s remaining
+  Trial 291 | logistic_regression  | Score=0.7958 | [0.1s] | ~64s remaining
+  Trial 292 | logistic_regression  | Score=0.7950 | [0.1s] | ~63s remaining
+  Trial 293 | logistic_regression  | Score=0.7962 | [0.1s] | ~63s remaining  <- new best
+  Trial 294 | logistic_regression  | Score=0.7916 | [0.0s] | ~63s remaining
+  Trial 295 | logistic_regression  | Score=0.7956 | [0.1s] | ~63s remaining
+  Trial 296 | logistic_regression  | Score=0.7916 | [0.0s] | ~63s remaining
+  Trial 297 | logistic_regression  | Score=0.7948 | [0.1s] | ~63s remaining
+  Trial 298 | svc                  | Score=0.7732 | [0.7s] | ~62s remaining
+  Trial 299 | logistic_regression  | Score=0.7916 | [0.0s] | ~62s remaining
+  Trial 300 | logistic_regression  | Score=0.7950 | [0.1s] | ~62s remaining
+  Trial 301 | logistic_regression  | Score=0.7916 | [0.0s] | ~62s remaining
+  Trial 302 | logistic_regression  | Score=0.7956 | [0.1s] | ~62s remaining
+  Trial 303 | logistic_regression  | Score=0.7956 | [0.1s] | ~62s remaining
+  Trial 304 | logistic_regression  | Score=0.7916 | [0.0s] | ~62s remaining
+  Trial 305 | logistic_regression  | Score=0.7950 | [0.1s] | ~62s remaining
+  Trial 306 | logistic_regression  | Score=0.7956 | [0.1s] | ~62s remaining
+  Trial 307 | xgboost              | Score=0.7804 | [0.2s] | ~61s remaining
+  Trial 308 | random_forest        | Score=0.7751 | [0.4s] | ~61s remaining
+  Trial 309 | logistic_regression  | Score=0.6500 | [0.0s] | ~61s remaining
+  Trial 310 | logistic_regression  | Score=0.7956 | [0.1s] | ~61s remaining
+  Trial 311 | logistic_regression  | Score=0.7947 | [0.1s] | ~61s remaining
+  Trial 312 | logistic_regression  | Score=0.7916 | [0.0s] | ~61s remaining
+  Trial 313 | logistic_regression  | Score=0.7916 | [0.0s] | ~61s remaining
+  Trial 314 | logistic_regression  | Score=0.7950 | [0.1s] | ~61s remaining
+  Trial 315 | logistic_regression  | Score=0.7947 | [0.1s] | ~60s remaining
+  Trial 316 | lightgbm             | Score=0.6223 | [0.2s] | ~60s remaining
+  Trial 317 | logistic_regression  | Score=0.7956 | [0.1s] | ~60s remaining
+  Trial 318 | logistic_regression  | Score=0.7962 | [0.1s] | ~60s remaining  <- new best
+  Trial 319 | logistic_regression  | Score=0.7916 | [0.0s] | ~60s remaining
+  Trial 320 | logistic_regression  | Score=0.7916 | [0.0s] | ~60s remaining
+  Trial 321 | logistic_regression  | Score=0.7615 | [0.0s] | ~60s remaining
+  Trial 322 | logistic_regression  | Score=0.7895 | [0.0s] | ~60s remaining
+  Trial 323 | logistic_regression  | Score=0.7952 | [0.1s] | ~60s remaining
+  Trial 324 | svc                  | Score=0.7879 | [0.7s] | ~59s remaining
+  Trial 325 | logistic_regression  | Score=0.7916 | [0.0s] | ~59s remaining
+  Trial 326 | logistic_regression  | Score=0.7952 | [0.1s] | ~59s remaining
+  Trial 327 | logistic_regression  | Score=0.7954 | [0.1s] | ~59s remaining
+  Trial 328 | logistic_regression  | Score=0.7935 | [0.0s] | ~59s remaining
+  Trial 329 | logistic_regression  | Score=0.7916 | [0.0s] | ~59s remaining
+  Trial 330 | logistic_regression  | Score=0.7950 | [0.1s] | ~59s remaining
+  Trial 331 | logistic_regression  | Score=0.7957 | [0.1s] | ~58s remaining
+  Trial 332 | logistic_regression  | Score=0.7916 | [0.0s] | ~58s remaining
+  Trial 333 | logistic_regression  | Score=0.7916 | [0.0s] | ~58s remaining
+  Trial 334 | xgboost              | Score=0.7672 | [0.4s] | ~58s remaining
+  Trial 335 | random_forest        | Score=0.7788 | [0.7s] | ~57s remaining
+  Trial 336 | logistic_regression  | Score=0.7935 | [0.0s] | ~57s remaining
+  Trial 337 | logistic_regression  | Score=0.7950 | [0.1s] | ~57s remaining
+  Trial 338 | logistic_regression  | Score=0.7952 | [0.1s] | ~57s remaining
+  Trial 339 | logistic_regression  | Score=0.7956 | [0.1s] | ~57s remaining
+  Trial 340 | logistic_regression  | Score=0.7950 | [0.1s] | ~57s remaining
+  Trial 341 | logistic_regression  | Score=0.7916 | [0.0s] | ~57s remaining
+  Trial 342 | logistic_regression  | Score=0.7957 | [0.1s] | ~57s remaining
+  Trial 343 | lightgbm             | Score=0.7786 | [0.5s] | ~56s remaining
+  Trial 344 | logistic_regression  | Score=0.7916 | [0.0s] | ~56s remaining
+  Trial 345 | logistic_regression  | Score=0.7948 | [0.1s] | ~56s remaining
+  Trial 346 | logistic_regression  | Score=0.7956 | [0.1s] | ~56s remaining
+  Trial 347 | logistic_regression  | Score=0.7916 | [0.0s] | ~56s remaining
+  Trial 348 | logistic_regression  | Score=0.7950 | [0.1s] | ~56s remaining
+  Trial 349 | logistic_regression  | Score=0.7947 | [0.1s] | ~56s remaining
+  Trial 350 | logistic_regression  | Score=0.7916 | [0.0s] | ~56s remaining
+  Trial 351 | svc                  | Score=0.6223 | [0.7s] | ~55s remaining
+  Trial 352 | logistic_regression  | Score=0.7916 | [0.0s] | ~55s remaining
+  Trial 353 | logistic_regression  | Score=0.7956 | [0.1s] | ~55s remaining
+  Trial 354 | logistic_regression  | Score=0.7916 | [0.0s] | ~55s remaining
+  Trial 355 | logistic_regression  | Score=0.7952 | [0.1s] | ~54s remaining
+  Trial 356 | logistic_regression  | Score=0.7916 | [0.0s] | ~54s remaining
+  Trial 357 | logistic_regression  | Score=0.7957 | [0.1s] | ~54s remaining
+  Trial 358 | logistic_regression  | Score=0.7907 | [0.0s] | ~54s remaining
+  Trial 359 | xgboost              | Score=0.7831 | [0.1s] | ~54s remaining
+  Trial 360 | logistic_regression  | Score=0.7950 | [0.1s] | ~54s remaining
+  Trial 361 | logistic_regression  | Score=0.7916 | [0.0s] | ~54s remaining
+  Trial 362 | random_forest        | Score=0.7873 | [0.2s] | ~54s remaining
+  Trial 363 | logistic_regression  | Score=0.7956 | [0.1s] | ~54s remaining
+  Trial 364 | logistic_regression  | Score=0.7916 | [0.0s] | ~54s remaining
+  Trial 365 | logistic_regression  | Score=0.7956 | [0.1s] | ~54s remaining
+  Trial 366 | logistic_regression  | Score=0.7948 | [0.1s] | ~53s remaining
+  Trial 367 | logistic_regression  | Score=0.7950 | [0.1s] | ~53s remaining
+  Trial 368 | logistic_regression  | Score=0.7916 | [0.0s] | ~53s remaining
+  Trial 369 | lightgbm             | Score=0.6223 | [0.2s] | ~53s remaining
+  Trial 370 | logistic_regression  | Score=0.7956 | [0.1s] | ~53s remaining
+  Trial 371 | logistic_regression  | Score=0.7935 | [0.0s] | ~53s remaining
+  Trial 372 | logistic_regression  | Score=0.7956 | [0.1s] | ~53s remaining
+  Trial 373 | logistic_regression  | Score=0.7916 | [0.0s] | ~53s remaining
+  Trial 374 | logistic_regression  | Score=0.7952 | [0.1s] | ~53s remaining
+  Trial 375 | logistic_regression  | Score=0.7956 | [0.1s] | ~52s remaining
+  Trial 376 | logistic_regression  | Score=0.7916 | [0.0s] | ~52s remaining
+  Trial 377 | logistic_regression  | Score=0.7947 | [0.1s] | ~52s remaining
+  Trial 378 | logistic_regression  | Score=0.7950 | [0.1s] | ~52s remaining
+  Trial 379 | logistic_regression  | Score=0.7957 | [0.1s] | ~52s remaining
+  Trial 380 | logistic_regression  | Score=0.7946 | [0.2s] | ~52s remaining
+  Trial 381 | logistic_regression  | Score=0.7916 | [0.0s] | ~52s remaining
+  Trial 382 | svc                  | Score=0.7622 | [0.7s] | ~51s remaining
+  Trial 383 | logistic_regression  | Score=0.7916 | [0.0s] | ~51s remaining
+  Trial 384 | xgboost              | Score=0.7762 | [0.6s] | ~51s remaining
+  Trial 385 | logistic_regression  | Score=0.7956 | [0.1s] | ~50s remaining
+  Trial 386 | logistic_regression  | Score=0.7950 | [0.1s] | ~50s remaining
+  Trial 387 | logistic_regression  | Score=0.7962 | [0.1s] | ~50s remaining  <- new best
+  Trial 388 | random_forest        | Score=0.7853 | [0.5s] | ~50s remaining
+  Trial 389 | logistic_regression  | Score=0.7916 | [0.0s] | ~50s remaining
+  Trial 390 | logistic_regression  | Score=0.7916 | [0.0s] | ~50s remaining
+  Trial 391 | logistic_regression  | Score=0.7957 | [0.1s] | ~50s remaining
+  Trial 392 | logistic_regression  | Score=0.7916 | [0.0s] | ~50s remaining
+  Trial 393 | logistic_regression  | Score=0.7952 | [0.1s] | ~49s remaining
+  Trial 394 | logistic_regression  | Score=0.7916 | [0.0s] | ~49s remaining
+  Trial 395 | logistic_regression  | Score=0.7950 | [0.1s] | ~49s remaining
+  Trial 396 | lightgbm             | Score=0.7661 | [0.5s] | ~49s remaining
+  Trial 397 | logistic_regression  | Score=0.7957 | [0.1s] | ~49s remaining
+  Trial 398 | logistic_regression  | Score=0.7952 | [0.1s] | ~49s remaining
+  Trial 399 | logistic_regression  | Score=0.7916 | [0.0s] | ~48s remaining
+  Trial 400 | logistic_regression  | Score=0.7916 | [0.0s] | ~48s remaining
+  Trial 401 | logistic_regression  | Score=0.7950 | [0.1s] | ~48s remaining
+  Trial 402 | logistic_regression  | Score=0.6223 | [0.0s] | ~48s remaining
+  Trial 403 | logistic_regression  | Score=0.7916 | [0.0s] | ~48s remaining
+  Trial 404 | logistic_regression  | Score=0.7957 | [0.1s] | ~48s remaining
+  Trial 405 | svc                  | Score=0.6223 | [0.7s] | ~47s remaining
+  Trial 406 | logistic_regression  | Score=0.7916 | [0.0s] | ~47s remaining
+  Trial 407 | logistic_regression  | Score=0.7956 | [0.1s] | ~47s remaining
+  Trial 408 | logistic_regression  | Score=0.7916 | [0.0s] | ~47s remaining
+  Trial 409 | logistic_regression  | Score=0.7947 | [0.1s] | ~47s remaining
+  Trial 410 | logistic_regression  | Score=0.7956 | [0.1s] | ~47s remaining
+  Trial 411 | xgboost              | Score=0.7091 | [0.2s] | ~47s remaining
+  Trial 412 | logistic_regression  | Score=0.7950 | [0.1s] | ~47s remaining
+  Trial 413 | logistic_regression  | Score=0.7958 | [0.1s] | ~47s remaining
+  Trial 414 | logistic_regression  | Score=0.7952 | [0.1s] | ~46s remaining
+  Trial 415 | logistic_regression  | Score=0.7958 | [0.1s] | ~46s remaining
+  Trial 416 | random_forest        | Score=0.7882 | [0.4s] | ~46s remaining
+  Trial 417 | logistic_regression  | Score=0.7935 | [0.0s] | ~46s remaining
+  Trial 418 | logistic_regression  | Score=0.7950 | [0.1s] | ~46s remaining
+  Trial 419 | logistic_regression  | Score=0.7956 | [0.2s] | ~46s remaining
+  Trial 420 | logistic_regression  | Score=0.7958 | [0.1s] | ~45s remaining
+  Trial 421 | logistic_regression  | Score=0.7950 | [0.1s] | ~45s remaining
+  Trial 422 | logistic_regression  | Score=0.7950 | [0.1s] | ~45s remaining
+  Trial 423 | logistic_regression  | Score=0.7957 | [0.1s] | ~45s remaining
+  Trial 424 | logistic_regression  | Score=0.7816 | [0.0s] | ~45s remaining
+  Trial 425 | lightgbm             | Score=0.7803 | [0.3s] | ~45s remaining
+  Trial 426 | logistic_regression  | Score=0.7916 | [0.0s] | ~45s remaining
+  Trial 427 | logistic_regression  | Score=0.7956 | [0.1s] | ~45s remaining
+  Trial 428 | logistic_regression  | Score=0.7948 | [0.1s] | ~45s remaining
+  Trial 429 | logistic_regression  | Score=0.7956 | [0.1s] | ~44s remaining
+  Trial 430 | logistic_regression  | Score=0.7916 | [0.0s] | ~44s remaining
+  Trial 431 | logistic_regression  | Score=0.7950 | [0.1s] | ~44s remaining
+  Trial 432 | logistic_regression  | Score=0.7935 | [0.0s] | ~44s remaining
+  Trial 433 | svc                  | Score=0.7789 | [0.7s] | ~44s remaining
+  Trial 434 | logistic_regression  | Score=0.7956 | [0.1s] | ~43s remaining
+  Trial 435 | logistic_regression  | Score=0.7916 | [0.0s] | ~43s remaining
+  Trial 436 | logistic_regression  | Score=0.7956 | [0.1s] | ~43s remaining
+  Trial 437 | logistic_regression  | Score=0.7916 | [0.0s] | ~43s remaining
+  Trial 438 | logistic_regression  | Score=0.7950 | [0.1s] | ~43s remaining
+  Trial 439 | logistic_regression  | Score=0.7956 | [0.1s] | ~43s remaining
+  Trial 440 | xgboost              | Score=0.6223 | [0.3s] | ~43s remaining
+  Trial 441 | logistic_regression  | Score=0.7949 | [0.1s] | ~43s remaining
+  Trial 442 | logistic_regression  | Score=0.7916 | [0.0s] | ~43s remaining
+  Trial 443 | logistic_regression  | Score=0.7948 | [0.1s] | ~42s remaining
+  Trial 444 | logistic_regression  | Score=0.7956 | [0.1s] | ~42s remaining
+  Trial 445 | logistic_regression  | Score=0.7956 | [0.1s] | ~42s remaining
+  Trial 446 | logistic_regression  | Score=0.7916 | [0.0s] | ~42s remaining
+  Trial 447 | logistic_regression  | Score=0.7952 | [0.1s] | ~42s remaining
+  Trial 448 | random_forest        | Score=0.7557 | [0.6s] | ~41s remaining
+  Trial 449 | logistic_regression  | Score=0.7956 | [0.1s] | ~41s remaining
+  Trial 450 | logistic_regression  | Score=0.7916 | [0.0s] | ~41s remaining
+  Trial 451 | lightgbm             | Score=0.7767 | [0.2s] | ~41s remaining
+  Trial 452 | logistic_regression  | Score=0.7948 | [0.1s] | ~41s remaining
+  Trial 453 | logistic_regression  | Score=0.7875 | [0.0s] | ~41s remaining
+  Trial 454 | logistic_regression  | Score=0.7953 | [0.1s] | ~41s remaining
+  Trial 455 | logistic_regression  | Score=0.7916 | [0.0s] | ~41s remaining
+  Trial 456 | logistic_regression  | Score=0.7956 | [0.1s] | ~41s remaining
+  Trial 457 | logistic_regression  | Score=0.7916 | [0.0s] | ~41s remaining
+  Trial 458 | logistic_regression  | Score=0.7958 | [0.1s] | ~41s remaining
+  Trial 459 | logistic_regression  | Score=0.7950 | [0.1s] | ~41s remaining
+  Trial 460 | svc                  | Score=0.7806 | [0.7s] | ~40s remaining
+  Trial 461 | logistic_regression  | Score=0.7916 | [0.0s] | ~40s remaining
+  Trial 462 | logistic_regression  | Score=0.7950 | [0.1s] | ~40s remaining
+  Trial 463 | logistic_regression  | Score=0.7957 | [0.1s] | ~39s remaining
+  Trial 464 | logistic_regression  | Score=0.7895 | [0.0s] | ~39s remaining
+  Trial 465 | logistic_regression  | Score=0.7946 | [0.1s] | ~39s remaining
+  Trial 466 | logistic_regression  | Score=0.7916 | [0.0s] | ~39s remaining
+  Trial 467 | xgboost              | Score=0.7430 | [0.4s] | ~39s remaining
+  Trial 468 | logistic_regression  | Score=0.7952 | [0.1s] | ~39s remaining
+  Trial 469 | logistic_regression  | Score=0.7959 | [0.1s] | ~39s remaining
+  Trial 470 | logistic_regression  | Score=0.7916 | [0.0s] | ~39s remaining
+  Trial 471 | random_forest        | Score=0.7843 | [0.2s] | ~38s remaining
+  Trial 472 | logistic_regression  | Score=0.7956 | [0.1s] | ~38s remaining
+  Trial 473 | logistic_regression  | Score=0.7916 | [0.0s] | ~38s remaining
+  Trial 474 | logistic_regression  | Score=0.7950 | [0.1s] | ~38s remaining
+  Trial 475 | logistic_regression  | Score=0.7957 | [0.1s] | ~38s remaining
+  Trial 476 | logistic_regression  | Score=0.7916 | [0.0s] | ~38s remaining
+  Trial 477 | logistic_regression  | Score=0.7916 | [0.0s] | ~38s remaining
+  Trial 478 | lightgbm             | Score=0.7755 | [0.4s] | ~37s remaining
+  Trial 479 | logistic_regression  | Score=0.7958 | [0.1s] | ~37s remaining
+  Trial 480 | logistic_regression  | Score=0.7959 | [0.1s] | ~37s remaining
+  Trial 481 | logistic_regression  | Score=0.7916 | [0.0s] | ~37s remaining
+  Trial 482 | logistic_regression  | Score=0.7916 | [0.0s] | ~37s remaining
+  Trial 483 | logistic_regression  | Score=0.7956 | [0.1s] | ~37s remaining
+  Trial 484 | logistic_regression  | Score=0.7958 | [0.1s] | ~37s remaining
+  Trial 485 | logistic_regression  | Score=0.7916 | [0.0s] | ~37s remaining
+  Trial 486 | logistic_regression  | Score=0.7954 | [0.1s] | ~37s remaining
+  Trial 487 | logistic_regression  | Score=0.7952 | [0.1s] | ~37s remaining
+  Trial 488 | svc                  | Score=0.7446 | [0.7s] | ~36s remaining
+  Trial 489 | logistic_regression  | Score=0.7958 | [0.1s] | ~36s remaining
+  Trial 490 | logistic_regression  | Score=0.7950 | [0.1s] | ~36s remaining
+  Trial 491 | logistic_regression  | Score=0.7916 | [0.0s] | ~36s remaining
+  Trial 492 | logistic_regression  | Score=0.7956 | [0.1s] | ~35s remaining
+  Trial 493 | logistic_regression  | Score=0.7916 | [0.0s] | ~35s remaining
+  Trial 494 | logistic_regression  | Score=0.7947 | [0.1s] | ~35s remaining
+  Trial 495 | xgboost              | Score=0.7718 | [0.2s] | ~35s remaining
+  Trial 496 | logistic_regression  | Score=0.7958 | [0.1s] | ~35s remaining
+  Trial 497 | logistic_regression  | Score=0.7916 | [0.0s] | ~35s remaining
+  Trial 498 | random_forest        | Score=0.7863 | [0.4s] | ~34s remaining
+  Trial 499 | logistic_regression  | Score=0.7952 | [0.1s] | ~34s remaining
+  Trial 500 | logistic_regression  | Score=0.7935 | [0.0s] | ~34s remaining
+  Trial 501 | logistic_regression  | Score=0.7956 | [0.1s] | ~34s remaining
+  Trial 502 | logistic_regression  | Score=0.7948 | [0.1s] | ~34s remaining
+  Trial 503 | logistic_regression  | Score=0.7916 | [0.0s] | ~34s remaining
+  Trial 504 | logistic_regression  | Score=0.7957 | [0.1s] | ~34s remaining
+  Trial 505 | lightgbm             | Score=0.7870 | [0.1s] | ~34s remaining
+  Trial 506 | logistic_regression  | Score=0.7916 | [0.0s] | ~34s remaining
+  Trial 507 | logistic_regression  | Score=0.7950 | [0.1s] | ~34s remaining
+  Trial 508 | logistic_regression  | Score=0.7960 | [0.1s] | ~34s remaining
+  Trial 509 | logistic_regression  | Score=0.7916 | [0.0s] | ~34s remaining
+  Trial 510 | logistic_regression  | Score=0.7916 | [0.0s] | ~34s remaining
+  Trial 511 | logistic_regression  | Score=0.7916 | [0.0s] | ~33s remaining
+  Trial 512 | logistic_regression  | Score=0.6223 | [0.0s] | ~33s remaining
+  Trial 513 | svc                  | Score=0.6223 | [0.7s] | ~33s remaining
+  Trial 514 | logistic_regression  | Score=0.7916 | [0.0s] | ~33s remaining
+  Trial 515 | logistic_regression  | Score=0.7956 | [0.1s] | ~33s remaining
+  Trial 516 | logistic_regression  | Score=0.7948 | [0.1s] | ~33s remaining
+  Trial 517 | logistic_regression  | Score=0.7957 | [0.1s] | ~32s remaining
+  Trial 518 | logistic_regression  | Score=0.7916 | [0.0s] | ~32s remaining
+  Trial 519 | logistic_regression  | Score=0.7907 | [0.0s] | ~32s remaining
+  Trial 520 | xgboost              | Score=0.7745 | [0.3s] | ~32s remaining
+  Trial 521 | logistic_regression  | Score=0.7956 | [0.1s] | ~32s remaining
+  Trial 522 | logistic_regression  | Score=0.7916 | [0.0s] | ~32s remaining
+  Trial 523 | logistic_regression  | Score=0.7351 | [0.0s] | ~32s remaining
+  Trial 524 | random_forest        | Score=0.7808 | [0.6s] | ~31s remaining
+  Trial 525 | logistic_regression  | Score=0.7927 | [0.0s] | ~31s remaining
+  Trial 526 | logistic_regression  | Score=0.7956 | [0.1s] | ~31s remaining
+  Trial 527 | logistic_regression  | Score=0.7950 | [0.1s] | ~31s remaining
+  Trial 528 | logistic_regression  | Score=0.7949 | [0.1s] | ~31s remaining
+  Trial 529 | logistic_regression  | Score=0.7916 | [0.0s] | ~31s remaining
+  Trial 530 | logistic_regression  | Score=0.7916 | [0.0s] | ~31s remaining
+  Trial 531 | lightgbm             | Score=0.7861 | [0.4s] | ~30s remaining
+  Trial 532 | logistic_regression  | Score=0.7957 | [0.1s] | ~30s remaining
+  Trial 533 | logistic_regression  | Score=0.7958 | [0.1s] | ~30s remaining
+  Trial 534 | logistic_regression  | Score=0.7916 | [0.0s] | ~30s remaining
+  Trial 535 | logistic_regression  | Score=0.7916 | [0.0s] | ~30s remaining
+  Trial 536 | logistic_regression  | Score=0.7958 | [0.1s] | ~30s remaining
+  Trial 537 | logistic_regression  | Score=0.7948 | [0.1s] | ~30s remaining
+  Trial 538 | logistic_regression  | Score=0.7916 | [0.0s] | ~30s remaining
+  Trial 539 | svc                  | Score=0.7824 | [0.8s] | ~29s remaining
+  Trial 540 | logistic_regression  | Score=0.7956 | [0.1s] | ~29s remaining
+  Trial 541 | logistic_regression  | Score=0.7950 | [0.1s] | ~29s remaining
+  Trial 542 | logistic_regression  | Score=0.7734 | [0.0s] | ~29s remaining
+  Trial 543 | logistic_regression  | Score=0.7916 | [0.0s] | ~29s remaining
+  Trial 544 | logistic_regression  | Score=0.7956 | [0.1s] | ~29s remaining
+  Trial 545 | logistic_regression  | Score=0.7916 | [0.0s] | ~29s remaining
+  Trial 546 | xgboost              | Score=0.7721 | [0.2s] | ~28s remaining
+  Trial 547 | logistic_regression  | Score=0.7950 | [0.1s] | ~28s remaining
+  Trial 548 | logistic_regression  | Score=0.7916 | [0.0s] | ~28s remaining
+  Trial 549 | logistic_regression  | Score=0.7956 | [0.1s] | ~28s remaining
+  Trial 550 | logistic_regression  | Score=0.7935 | [0.0s] | ~28s remaining
+  Trial 551 | logistic_regression  | Score=0.7948 | [0.1s] | ~28s remaining
+  Trial 552 | logistic_regression  | Score=0.7952 | [0.1s] | ~28s remaining
+  Trial 553 | random_forest        | Score=0.7921 | [0.4s] | ~27s remaining
+  Trial 554 | logistic_regression  | Score=0.7916 | [0.0s] | ~27s remaining
+  Trial 555 | logistic_regression  | Score=0.7916 | [0.0s] | ~27s remaining
+  Trial 556 | logistic_regression  | Score=0.7950 | [0.1s] | ~27s remaining
+  Trial 557 | logistic_regression  | Score=0.7957 | [0.1s] | ~27s remaining
+  Trial 558 | logistic_regression  | Score=0.7956 | [0.1s] | ~27s remaining
+  Trial 559 | lightgbm             | Score=0.7703 | [0.4s] | ~27s remaining
+  Trial 560 | logistic_regression  | Score=0.7916 | [0.0s] | ~27s remaining
+  Trial 561 | logistic_regression  | Score=0.7950 | [0.1s] | ~26s remaining
+  Trial 562 | logistic_regression  | Score=0.7916 | [0.0s] | ~26s remaining
+  Trial 563 | logistic_regression  | Score=0.7956 | [0.1s] | ~26s remaining
+  Trial 564 | logistic_regression  | Score=0.7958 | [0.1s] | ~26s remaining
+  Trial 565 | logistic_regression  | Score=0.7916 | [0.0s] | ~26s remaining
+  Trial 566 | logistic_regression  | Score=0.7953 | [0.1s] | ~26s remaining
+  Trial 567 | logistic_regression  | Score=0.7956 | [0.1s] | ~26s remaining
+  Trial 568 | svc                  | Score=0.7865 | [0.7s] | ~25s remaining
+  Trial 569 | logistic_regression  | Score=0.7855 | [0.0s] | ~25s remaining
+  Trial 570 | logistic_regression  | Score=0.6347 | [0.0s] | ~25s remaining
+  Trial 571 | logistic_regression  | Score=0.7916 | [0.0s] | ~25s remaining
+  Trial 572 | logistic_regression  | Score=0.7962 | [0.1s] | ~25s remaining  <- new best
+  Trial 573 | logistic_regression  | Score=0.7916 | [0.0s] | ~25s remaining
+  Trial 574 | xgboost              | Score=0.6223 | [0.1s] | ~25s remaining
+  Trial 575 | logistic_regression  | Score=0.7916 | [0.0s] | ~25s remaining
+  Trial 576 | logistic_regression  | Score=0.7916 | [0.0s] | ~25s remaining
+  Trial 577 | random_forest        | Score=0.7567 | [0.2s] | ~25s remaining
+  Trial 578 | logistic_regression  | Score=0.7916 | [0.0s] | ~25s remaining
+  Trial 579 | logistic_regression  | Score=0.7950 | [0.1s] | ~24s remaining
+  Trial 580 | logistic_regression  | Score=0.7935 | [0.0s] | ~24s remaining
+  Trial 581 | logistic_regression  | Score=0.7956 | [0.1s] | ~24s remaining
+  Trial 582 | logistic_regression  | Score=0.7916 | [0.0s] | ~24s remaining
+  Trial 583 | logistic_regression  | Score=0.7916 | [0.0s] | ~24s remaining
+  Trial 584 | lightgbm             | Score=0.6223 | [0.1s] | ~24s remaining
+  Trial 585 | logistic_regression  | Score=0.7916 | [0.0s] | ~24s remaining
+  Trial 586 | logistic_regression  | Score=0.7948 | [0.1s] | ~24s remaining
+  Trial 587 | logistic_regression  | Score=0.7952 | [0.1s] | ~24s remaining
+  Trial 588 | logistic_regression  | Score=0.7956 | [0.1s] | ~24s remaining
+  Trial 589 | logistic_regression  | Score=0.7916 | [0.0s] | ~24s remaining
+  Trial 590 | logistic_regression  | Score=0.7948 | [0.1s] | ~24s remaining
+  Trial 591 | logistic_regression  | Score=0.7950 | [0.1s] | ~23s remaining
+  Trial 592 | svc                  | Score=0.7711 | [0.8s] | ~23s remaining
+  Trial 593 | logistic_regression  | Score=0.7958 | [0.1s] | ~22s remaining
+  Trial 594 | logistic_regression  | Score=0.7916 | [0.0s] | ~22s remaining
+  Trial 595 | logistic_regression  | Score=0.7916 | [0.0s] | ~22s remaining
+  Trial 596 | logistic_regression  | Score=0.7956 | [0.1s] | ~22s remaining
+  Trial 597 | logistic_regression  | Score=0.7950 | [0.1s] | ~22s remaining
+  Trial 598 | logistic_regression  | Score=0.7916 | [0.0s] | ~22s remaining
+  Trial 599 | logistic_regression  | Score=0.7956 | [0.1s] | ~22s remaining
+  Trial 600 | logistic_regression  | Score=0.7956 | [0.1s] | ~22s remaining
+  Trial 601 | xgboost              | Score=0.7863 | [0.4s] | ~22s remaining
+  Trial 602 | logistic_regression  | Score=0.7913 | [0.0s] | ~21s remaining
+  Trial 603 | random_forest        | Score=0.7810 | [0.3s] | ~21s remaining
+  Trial 604 | logistic_regression  | Score=0.7950 | [0.1s] | ~21s remaining
+  Trial 605 | logistic_regression  | Score=0.7916 | [0.0s] | ~21s remaining
+  Trial 606 | logistic_regression  | Score=0.7948 | [0.1s] | ~21s remaining
+  Trial 607 | logistic_regression  | Score=0.7916 | [0.0s] | ~21s remaining
+  Trial 608 | logistic_regression  | Score=0.7958 | [0.1s] | ~21s remaining
+  Trial 609 | lightgbm             | Score=0.7447 | [0.1s] | ~21s remaining
+  Trial 610 | logistic_regression  | Score=0.7935 | [0.0s] | ~21s remaining
+  Trial 611 | logistic_regression  | Score=0.7952 | [0.1s] | ~21s remaining
+  Trial 612 | logistic_regression  | Score=0.7916 | [0.0s] | ~20s remaining
+  Trial 613 | logistic_regression  | Score=0.7956 | [0.1s] | ~20s remaining
+  Trial 614 | logistic_regression  | Score=0.7948 | [0.1s] | ~20s remaining
+  Trial 615 | logistic_regression  | Score=0.7916 | [0.0s] | ~20s remaining
+  Trial 616 | logistic_regression  | Score=0.7952 | [0.1s] | ~20s remaining
+  Trial 617 | svc                  | Score=0.6223 | [0.7s] | ~19s remaining
+  Trial 618 | logistic_regression  | Score=0.7916 | [0.0s] | ~19s remaining
+  Trial 619 | logistic_regression  | Score=0.7956 | [0.1s] | ~19s remaining
+  Trial 620 | logistic_regression  | Score=0.7952 | [0.1s] | ~19s remaining
+  Trial 621 | logistic_regression  | Score=0.6223 | [0.0s] | ~19s remaining
+  Trial 622 | logistic_regression  | Score=0.7916 | [0.0s] | ~19s remaining
+  Trial 623 | logistic_regression  | Score=0.7886 | [0.0s] | ~19s remaining
+  Trial 624 | logistic_regression  | Score=0.7956 | [0.1s] | ~19s remaining
+  Trial 625 | xgboost              | Score=0.7748 | [0.3s] | ~19s remaining
+  Trial 626 | logistic_regression  | Score=0.7916 | [0.0s] | ~19s remaining
+  Trial 627 | logistic_regression  | Score=0.7892 | [0.0s] | ~18s remaining
+  Trial 628 | logistic_regression  | Score=0.7947 | [0.1s] | ~18s remaining
+  Trial 629 | logistic_regression  | Score=0.7950 | [0.1s] | ~18s remaining
+  Trial 630 | logistic_regression  | Score=0.7916 | [0.0s] | ~18s remaining
+  Trial 631 | logistic_regression  | Score=0.7956 | [0.1s] | ~18s remaining
+  Trial 632 | logistic_regression  | Score=0.7916 | [0.0s] | ~18s remaining
+  Trial 633 | random_forest        | Score=0.7821 | [0.4s] | ~18s remaining
+  Trial 634 | logistic_regression  | Score=0.7956 | [0.1s] | ~18s remaining
+  Trial 635 | logistic_regression  | Score=0.7950 | [0.1s] | ~17s remaining
+  Trial 636 | logistic_regression  | Score=0.7916 | [0.0s] | ~17s remaining
+  Trial 637 | logistic_regression  | Score=0.7956 | [0.1s] | ~17s remaining
+  Trial 638 | lightgbm             | Score=0.7724 | [0.3s] | ~17s remaining
+  Trial 639 | logistic_regression  | Score=0.7916 | [0.0s] | ~17s remaining
+  Trial 640 | logistic_regression  | Score=0.7950 | [0.1s] | ~17s remaining
+  Trial 641 | logistic_regression  | Score=0.7958 | [0.1s] | ~17s remaining
+  Trial 642 | logistic_regression  | Score=0.7916 | [0.0s] | ~17s remaining
+  Trial 643 | svc                  | Score=0.7525 | [0.7s] | ~16s remaining
+  Trial 644 | logistic_regression  | Score=0.7956 | [0.1s] | ~16s remaining
+  Trial 645 | logistic_regression  | Score=0.7950 | [0.1s] | ~16s remaining
+  Trial 646 | logistic_regression  | Score=0.7950 | [0.1s] | ~16s remaining
+  Trial 647 | logistic_regression  | Score=0.7916 | [0.0s] | ~16s remaining
+  Trial 648 | logistic_regression  | Score=0.7916 | [0.0s] | ~15s remaining
+  Trial 649 | logistic_regression  | Score=0.7956 | [0.1s] | ~15s remaining
+  Trial 650 | logistic_regression  | Score=0.7950 | [0.1s] | ~15s remaining
+  Trial 651 | xgboost              | Score=0.6868 | [0.3s] | ~15s remaining
+  -> Time budget nearly exhausted — wrapping up...
+  Trial 652 | logistic_regression  | Score=0.7916 | [0.0s] | ~15s remaining
+  Trial 653 | logistic_regression  | Score=0.7935 | [0.0s] | ~15s remaining
+  Trial 654 | random_forest        | Score=0.7316 | [0.6s] | ~14s remaining
+  Trial 655 | logistic_regression  | Score=0.7956 | [0.1s] | ~14s remaining
+  Trial 656 | logistic_regression  | Score=0.7954 | [0.1s] | ~14s remaining
+  Trial 657 | logistic_regression  | Score=0.7546 | [0.0s] | ~14s remaining
+  Trial 658 | logistic_regression  | Score=0.7916 | [0.0s] | ~14s remaining
+  Trial 659 | logistic_regression  | Score=0.7948 | [0.1s] | ~14s remaining
+  Trial 660 | logistic_regression  | Score=0.7956 | [0.1s] | ~14s remaining
+  Trial 661 | logistic_regression  | Score=0.7946 | [0.1s] | ~14s remaining
+  Trial 662 | lightgbm             | Score=0.7570 | [0.3s] | ~13s remaining
+  Trial 663 | logistic_regression  | Score=0.7916 | [0.0s] | ~13s remaining
+  Trial 664 | logistic_regression  | Score=0.7927 | [0.0s] | ~13s remaining
+  Trial 665 | logistic_regression  | Score=0.7960 | [0.1s] | ~13s remaining
+  Trial 666 | logistic_regression  | Score=0.7916 | [0.0s] | ~13s remaining
+  Trial 667 | logistic_regression  | Score=0.7916 | [0.0s] | ~13s remaining
+  Trial 668 | logistic_regression  | Score=0.7916 | [0.0s] | ~13s remaining
+  Trial 669 | logistic_regression  | Score=0.7956 | [0.1s] | ~13s remaining
+  Trial 670 | logistic_regression  | Score=0.7916 | [0.0s] | ~13s remaining
+  Trial 671 | logistic_regression  | Score=0.7957 | [0.1s] | ~13s remaining
+  Trial 672 | svc                  | Score=0.6515 | [0.7s] | ~12s remaining
+  Trial 673 | logistic_regression  | Score=0.7952 | [0.1s] | ~12s remaining
+  Trial 674 | logistic_regression  | Score=0.7916 | [0.0s] | ~12s remaining
+  Trial 675 | logistic_regression  | Score=0.7916 | [0.0s] | ~12s remaining
+  Trial 676 | logistic_regression  | Score=0.7954 | [0.1s] | ~12s remaining
+  Trial 677 | logistic_regression  | Score=0.7950 | [0.1s] | ~12s remaining
+  Trial 678 | logistic_regression  | Score=0.7916 | [0.0s] | ~12s remaining
+  Trial 679 | logistic_regression  | Score=0.7950 | [0.1s] | ~11s remaining
+  Trial 680 | xgboost              | Score=0.7770 | [0.3s] | ~11s remaining
+  Trial 681 | random_forest        | Score=0.7803 | [0.6s] | ~11s remaining
+  Trial 682 | logistic_regression  | Score=0.7916 | [0.0s] | ~11s remaining
+  Trial 683 | logistic_regression  | Score=0.7958 | [0.1s] | ~10s remaining
+  Trial 684 | logistic_regression  | Score=0.7950 | [0.1s] | ~10s remaining
+  Trial 685 | logistic_regression  | Score=0.7962 | [0.1s] | ~10s remaining  <- new best
+  Trial 686 | logistic_regression  | Score=0.7916 | [0.0s] | ~10s remaining
+  Trial 687 | logistic_regression  | Score=0.7883 | [0.0s] | ~10s remaining
+  Trial 688 | lightgbm             | Score=0.6223 | [0.1s] | ~10s remaining
+  Trial 689 | logistic_regression  | Score=0.7916 | [0.0s] | ~10s remaining
+  Trial 690 | logistic_regression  | Score=0.7916 | [0.0s] | ~10s remaining
+  Trial 691 | logistic_regression  | Score=0.7916 | [0.0s] | ~10s remaining
+  Trial 692 | logistic_regression  | Score=0.7957 | [0.1s] | ~10s remaining
+  Trial 693 | logistic_regression  | Score=0.7916 | [0.0s] | ~10s remaining
+  Trial 694 | logistic_regression  | Score=0.7956 | [0.1s] | ~10s remaining
+  Trial 695 | logistic_regression  | Score=0.7962 | [0.2s] | ~9s remaining  <- new best
+  Trial 696 | logistic_regression  | Score=0.7916 | [0.0s] | ~9s remaining
+  Trial 697 | logistic_regression  | Score=0.7956 | [0.1s] | ~9s remaining
+  Trial 698 | logistic_regression  | Score=0.7916 | [0.0s] | ~9s remaining
+  Trial 699 | svc                  | Score=0.7685 | [0.7s] | ~9s remaining
+  Trial 700 | logistic_regression  | Score=0.7916 | [0.0s] | ~9s remaining
+  Trial 701 | logistic_regression  | Score=0.7957 | [0.1s] | ~8s remaining
+  Trial 702 | logistic_regression  | Score=0.7916 | [0.0s] | ~8s remaining
+  Trial 703 | logistic_regression  | Score=0.7956 | [0.1s] | ~8s remaining
+  Trial 704 | logistic_regression  | Score=0.7916 | [0.0s] | ~8s remaining
+  Trial 705 | xgboost              | Score=0.7861 | [0.3s] | ~8s remaining
+  Trial 706 | logistic_regression  | Score=0.7957 | [0.1s] | ~8s remaining
+  Trial 707 | logistic_regression  | Score=0.7916 | [0.0s] | ~8s remaining
+  Trial 708 | random_forest        | Score=0.7733 | [0.2s] | ~8s remaining
+  Trial 709 | logistic_regression  | Score=0.7950 | [0.1s] | ~8s remaining
+  Trial 710 | logistic_regression  | Score=0.7957 | [0.1s] | ~7s remaining
+  Trial 711 | logistic_regression  | Score=0.7946 | [0.1s] | ~7s remaining
+  Trial 712 | logistic_regression  | Score=0.7956 | [0.1s] | ~7s remaining
+  Trial 713 | logistic_regression  | Score=0.7916 | [0.0s] | ~7s remaining
+  Trial 714 | logistic_regression  | Score=0.7956 | [0.1s] | ~7s remaining
+  Trial 715 | lightgbm             | Score=0.7870 | [0.1s] | ~7s remaining
+  Trial 716 | logistic_regression  | Score=0.7916 | [0.0s] | ~7s remaining
+  Trial 717 | logistic_regression  | Score=0.7950 | [0.1s] | ~7s remaining
+  Trial 718 | logistic_regression  | Score=0.7950 | [0.1s] | ~7s remaining
+  Trial 719 | logistic_regression  | Score=0.7916 | [0.0s] | ~7s remaining
+  Trial 720 | logistic_regression  | Score=0.7957 | [0.2s] | ~6s remaining
+  Trial 721 | logistic_regression  | Score=0.7916 | [0.0s] | ~6s remaining
+  Trial 722 | logistic_regression  | Score=0.7950 | [0.1s] | ~6s remaining
+  Trial 723 | svc                  | Score=0.7812 | [0.7s] | ~5s remaining
+  Trial 724 | logistic_regression  | Score=0.7916 | [0.0s] | ~5s remaining
+  Trial 725 | logistic_regression  | Score=0.7957 | [0.1s] | ~5s remaining
+  Trial 726 | logistic_regression  | Score=0.7916 | [0.0s] | ~5s remaining
+  Trial 727 | logistic_regression  | Score=0.7950 | [0.1s] | ~5s remaining
+  Trial 728 | logistic_regression  | Score=0.7947 | [0.1s] | ~5s remaining
+  Trial 729 | logistic_regression  | Score=0.7958 | [0.1s] | ~5s remaining
+  Trial 730 | xgboost              | Score=0.6223 | [0.4s] | ~4s remaining
+  Trial 731 | logistic_regression  | Score=0.7916 | [0.0s] | ~4s remaining
+  Trial 732 | logistic_regression  | Score=0.7960 | [0.1s] | ~4s remaining
+  Trial 733 | logistic_regression  | Score=0.7916 | [0.0s] | ~4s remaining
+  Trial 734 | logistic_regression  | Score=0.7960 | [0.1s] | ~4s remaining
+  Trial 735 | logistic_regression  | Score=0.7916 | [0.0s] | ~4s remaining
+  Trial 736 | random_forest        | Score=0.7846 | [0.3s] | ~4s remaining
+  Trial 737 | logistic_regression  | Score=0.7916 | [0.0s] | ~4s remaining
+  Trial 738 | logistic_regression  | Score=0.7916 | [0.0s] | ~4s remaining
+  Trial 739 | logistic_regression  | Score=0.7916 | [0.0s] | ~4s remaining
+  Trial 740 | logistic_regression  | Score=0.7956 | [0.1s] | ~4s remaining
+  Trial 741 | logistic_regression  | Score=0.7916 | [0.0s] | ~4s remaining
+  Trial 742 | logistic_regression  | Score=0.7956 | [0.2s] | ~3s remaining
+  Trial 743 | lightgbm             | Score=0.6745 | [0.5s] | ~3s remaining
+  Trial 744 | logistic_regression  | Score=0.7886 | [0.0s] | ~3s remaining
+  Trial 745 | logistic_regression  | Score=0.7916 | [0.0s] | ~3s remaining
+  Trial 746 | logistic_regression  | Score=0.7916 | [0.0s] | ~3s remaining
+  Trial 747 | logistic_regression  | Score=0.7957 | [0.1s] | ~3s remaining
+  Trial 748 | logistic_regression  | Score=0.7952 | [0.1s] | ~3s remaining
+  Trial 749 | logistic_regression  | Score=0.7916 | [0.0s] | ~3s remaining
+  Trial 750 | logistic_regression  | Score=0.7916 | [0.0s] | ~2s remaining
+  Trial 751 | svc                  | Score=0.7711 | [0.8s] | ~2s remaining
+  Trial 752 | logistic_regression  | Score=0.7956 | [0.1s] | ~2s remaining
+  Trial 753 | logistic_regression  | Score=0.7957 | [0.1s] | ~1s remaining
+  Trial 754 | logistic_regression  | Score=0.7950 | [0.1s] | ~1s remaining
+  Trial 755 | logistic_regression  | Score=0.7916 | [0.0s] | ~1s remaining
+  Trial 756 | logistic_regression  | Score=0.7950 | [0.1s] | ~1s remaining
+  Trial 757 | logistic_regression  | Score=0.7916 | [0.0s] | ~1s remaining
+  Trial 758 | xgboost              | Score=0.7652 | [0.4s] | ~1s remaining
+  Trial 759 | logistic_regression  | Score=0.7916 | [0.0s] | ~1s remaining
+  Trial 760 | logistic_regression  | Score=0.7956 | [0.1s] | ~1s remaining
+  Trial 761 | logistic_regression  | Score=0.7952 | [0.1s] | ~0s remaining
+  Trial 762 | random_forest        | Score=0.7840 | [0.5s] | ~-0s remaining
+
+  -> Found best model: logistic_regression (Score: 0.7962) in 120.0s
+  -> Retraining optimized parameters strictly across entire dataset...
+  [+] [OPTUNA TUNING] completed in 120.11s
+
+[EVALUATION]
+
+[EVALUATION]
+  -> F1 (weighted) : 0.8054
+  -> ROC-AUC       : 0.8466
+  -> Generating Model Explainability (SHAP)...
+     [!] Computing SHAP via KernelExplainer. Sampling background to preserve time budget.
+  [+] [EVALUATION] completed in 17.91s
+
+ARTIFACT PRESERVATION
+  -> Joblib targets generated for API mapping.
+  [+] ARTIFACT PRESERVATION completed in 0.10s
+
+[DEPLOYMENT]
+Training complete. How would you like to save the model?
+  (1) Save as joblib file
+  (2) Spin up FastAPI endpoint
+  (3) Both
+  -> Your choice:   [+] Model artifacts already staged at outputs/models/
+
+[REPORT]
+  Model         : logistic_regression
+  Problem Type  : CLASSIFICATION
+  F1 Weighted   : 0.8054
+  ROC-AUC       : 0.8466
+
+  Limitations (1):
+    1. SHAP values were estimated using a sampled KernelExplainer, making them mathematical approximations rather than exact derivations.
+
+  Model saved   : outputs\models\model.joblib
+
+[+] Pipeline execution completed successfully in 148.97s.

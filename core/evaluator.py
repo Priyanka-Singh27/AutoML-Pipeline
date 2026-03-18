@@ -74,7 +74,9 @@ def _interpret_confusion_matrix(cm, class_labels, audit, problem_subtype):
 def _evaluate_classification(model, X_tr, X_te, y_tr, y_te, detection, audit, evaluation):
     """Handles logic for Classification evaluation."""
     n_classes = detection.get('num_classes', 2)
-    class_labels = detection.get('class_labels', [str(i) for i in range(n_classes)])
+    class_labels = detection.get('class_labels')
+    if class_labels is None:
+        class_labels = [str(i) for i in range(n_classes)] if n_classes else ['0', '1']
     subtype = detection.get('classification_subtype', 'binary')
     
     model.fit(X_tr, y_tr)

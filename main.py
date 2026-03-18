@@ -125,11 +125,11 @@ def prompt_deployment(evaluation, args):
     if choice in ('1', '3'):
         narrate("  [+] Model artifacts already staged at outputs/models/")
     if choice in ('2', '3'):
-        import subprocess
+        import uvicorn
         narrate("  [+] Launching FastAPI interface...")
         narrate("  -> Endpoint active at http://127.0.0.1:8000")
         try:
-            subprocess.run(["uvicorn", "api.app:app", "--host", "127.0.0.1", "--port", "8000"], check=True)
+            uvicorn.run("api.app:app", host="127.0.0.1", port=8000)
         except KeyboardInterrupt:
             narrate("\n  [+] API gracefully stopped.")
 
@@ -212,13 +212,11 @@ def execute_pipeline(args: PipelineArgs):
         try:
             import weasyprint
         except (ImportError, OSError):
-            narrate("  [!] weasyprint is not installed. PDF generation aborted.")
-            raise PipelineStepError(
-                "REPORT SETUP",
-                "weasyprint is not installed. "
-                "Install it with: pip install weasyprint "
-                "Or run with --report terminal to skip PDF generation."
-            )
+            narrate("\n[PIPELINE ABORTED] Pipeline failed at step 'REPORT SETUP'")
+            narrate("Reason: weasyprint is missing or system C-dependencies (GTK) are unavailable.")
+            narrate("Install it with: pip install weasyprint")
+            narrate("Or run with --report terminal to skip PDF generation.")
+            sys.exit(1)
 
     setup_output_dirs()
     
@@ -307,7 +305,7 @@ def execute_pipeline(args: PipelineArgs):
                 detection, audit, 
                 time_budget=args.time_budget, 
                 random_state=args.random_state,
-                _auto_input='1'
+                _auto_input='2' if args.problem == 'regression' else ('1' if args.problem == 'classification' else None)
             )
             state.study = study
             state.best_model = best_model

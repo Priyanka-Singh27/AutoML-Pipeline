@@ -7,7 +7,7 @@ from core.constants import ONEHOT_THRESHOLD, ORDINAL_THRESHOLD
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler, RobustScaler, OneHotEncoder, OrdinalEncoder
+from sklearn.preprocessing import StandardScaler, RobustScaler, OneHotEncoder, OrdinalEncoder, LabelEncoder
 from imblearn.over_sampling import SMOTE
 
 try:
@@ -42,6 +42,9 @@ def run_preprocessor(df: pd.DataFrame, audit: dict, args) -> tuple[pd.DataFrame,
     """
     narrate("\n[PREPROCESSING]")
     df_clean = df.copy()
+    
+    # Optional target encoder artifact to return along with preprocessor
+    fitted_label_encoder = None
     
     # --- 1. Remove Duplicates Early ---
     dup_indices = audit.get('duplicate_indices', [])
@@ -79,6 +82,24 @@ def run_preprocessor(df: pd.DataFrame, audit: dict, args) -> tuple[pd.DataFrame,
         problem_type = 'classification' if df_clean[target].nunique() <= 50 else 'regression'
     elif not problem_type:
         problem_type = 'clustering'
+
+    if target and y_train is not None and problem_type == 'classification' and y_train.dtype == 'object':
+        narrate(f"  -> '{target}': Detected string target constraints for classification. Applying LabelEncoder.")
+        le = LabelEncoder()
+        y_train = pd.Series(le.fit_transform(y_train), index=y_train.index, name=target)
+        fitted_label_encoder = le
+        # Update target column in df_clean as well to pass to ML engine smoothly
+        df_clean[target] = y_train
+
+    # --- 2.5. Numeric Coercion on Object Columns ---
+    for col in df_clean.select_dtypes(include=['object', 'category']).columns:
+        if col == target:
+            continue
+        coerced = pd.to_numeric(df_clean[col], errors='coerce')
+        # If more than 80% converted successfully — treat as numeric instead of high cardinality categorical strings
+        if coerced.notna().mean() > 0.8:
+            df_clean[col] = coerced
+            narrate(f"  -> '{col}': coerced masquerading string-numeric column to float")
 
     # --- 3. Outlier Capping (Clip 1st/99th percentile) ---
     for col, info in audit.get('outlier_columns', {}).items():
@@ -231,4 +252,11 @@ def run_preprocessor(df: pd.DataFrame, audit: dict, args) -> tuple[pd.DataFrame,
         
     narrate(f"  [+] Preprocessing Complete: {df_clean_numeric.shape[1]} resulting dimensions.")
     
-    return df_clean_numeric, preprocessor
+    
+    # Attach LabelEncoder inside the object output tuple if triggered
+    output_bundle = {
+        'column_transformer': preprocessor,
+        'label_encoder': fitted_label_encoder
+    }
+    
+    return df_clean_numeric, output_bundle

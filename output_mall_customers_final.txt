@@ -1,0 +1,96 @@
+
+-----
+
+WeasyPrint could not import some external libraries. Please carefully follow the installation steps before reporting an issue:
+https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#installation
+https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#troubleshooting 
+
+-----
+
+===========================================
+ AUTO-ML PIPELINE INITIATED
+===========================================
+Dataset      : data/mall_customers.csv
+Random State : 42
+Time Budget  : 60s
+
+[FILE VALIDATION]
+  -> Loading dataset: data/mall_customers.csv
+  -> Shape: 200 rows, 5 columns
+  [+] [FILE VALIDATION] completed in 0.00s
+
+[DATA AUDIT]
+
+[DATA AUDIT]
+  -> Profiling 200 rows and 5 columns
+  [!] 'CustomerID' looks like an ID column (Drop candidate)
+  -> Found 4 numeric, 1 categorical features.
+  -> Audit complete.
+  [+] [DATA AUDIT] completed in 0.02s
+
+[TARGET DETECTION]
+
+[DETECTION]
+  -> Problem type inferred as: Clustering (No target column found)
+  [+] [TARGET DETECTION] completed in 0.00s
+
+PREPROCESSING
+
+[PREPROCESSING]
+  -> Dropping structural pathologies: ['CustomerID']
+  -> Mapping 3 numerical features (StandardScaler)
+  -> 'Gender' (2 unique) : OneHotEncoder
+  -> Fitting Scikit-Learn Processor...
+  [+] Preprocessing Complete: 5 resulting dimensions.
+  -> Preprocessed shape: 200 rows, 5 columns
+  [+] PREPROCESSING completed in 0.02s
+
+[FEATURE SELECTION]
+
+[FEATURE SELECTION]
+  -> Features remaining: 5 / 5
+  [+] [FEATURE SELECTION] completed in 0.00s
+
+[OPTUNA TUNING]
+
+[OPTUNA TUNING]
+  -> Clustering mode detected. Initiating pattern discovery...
+  -> Testing K-Means (k=2 to 4)...
+     Elbow suggests: 3 | Silhouette suggests: 4
+     [!] Methods disagree. Falling back to Silhouette mechanically.
+  -> Testing DBSCAN (k-NN distance estimated eps)...
+  -> Testing Agglomerative Hierarchical (target k=4)...
+  [RESULT] Selected KMeans (k=4) with silhouette = 0.3195
+  [+] [OPTUNA TUNING] completed in 0.43s
+
+[EVALUATION]
+
+[EVALUATION]
+  -> Clusters found    : 4
+  -> Silhouette score  : 0.3195
+  [+] [EVALUATION] completed in 0.04s
+
+ARTIFACT PRESERVATION
+  -> Joblib targets generated for API mapping.
+  [+] ARTIFACT PRESERVATION completed in 0.01s
+
+[DEPLOYMENT]
+Training complete. How would you like to save the model?
+  (1) Save as joblib file
+  (2) Spin up FastAPI endpoint
+  (3) Both
+  -> Your choice:   [+] Model artifacts already staged at outputs/models/
+
+[REPORT]
+  Model         : KMeans (k=4)
+  Problem Type  : CLUSTERING
+  Silhouette    : 0.3195
+  Davies-Bouldin: 1.1793
+
+  Limitations (2):
+    1. Very small dataset (200 rows). Model may be highly susceptible to overfitting.
+    2. Clustering results are sensitive to hyperparameters. Segmentations map relative geometric distance densities, not objective empirical truth.
+
+  Model saved   : outputs\models\model.joblib
+
+[+] Pipeline execution completed successfully in 0.52s.
