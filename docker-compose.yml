@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  train:
+    build: .
+    volumes:
+      - ./data:/app/data
+      - ./outputs:/app/outputs
+    restart: "no"
+    command: --file data/titanic.csv --target Survived
+
+  serve:
+    build: .
+    environment:
+      - AUTOML_MODE=api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./outputs:/app/outputs:ro
+    depends_on:
+      - train
+    restart: "no"
